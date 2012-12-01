@@ -69,7 +69,7 @@
     var ros = new ROS('ws://localhost:9090');
 
     // show interactive markers
-    imClient = new ImTunnel.Client(ros);
+    imClient = new ImProxy.Client(ros);
     imViewer = new ImThree.Viewer(scene0, imClient);
     imClient.subscribe('/basic_controls');
   }
