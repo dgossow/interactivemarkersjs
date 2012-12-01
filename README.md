@@ -19,4 +19,7 @@ Usage
 
 For example WebGL apps, see the examples directory.
 
-To run the basic_controls example, go to the examples dirctory
+To run the basic_controls example, go to the examples directory and run (in two terminals):
+
+```./simple_webserver.py```
+```roslaunch basic_controls.launch```
