@@ -52,9 +52,11 @@
   
     var intersections = [];
   
+    
     // compute normalized device coords and 3d mouse ray
-    var deviceX = (domEvent.clientX / domEvent.target.clientWidth) * 2 - 1;
-    var deviceY = -(domEvent.clientY / domEvent.target.clientHeight) * 2 + 1;
+    var target = domEvent.target;
+    var deviceX = (domEvent.clientX - target.offsetLeft) / target.clientWidth * 2 - 1;
+    var deviceY = -(domEvent.clientY - target.offsetTop) / target.clientHeight * 2 + 1;
   
     var vector = new THREE.Vector3(deviceX, deviceY, 0.5);
     this.projector.unprojectVector(vector, this.camera);
