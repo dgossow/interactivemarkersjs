@@ -1,6 +1,6 @@
 InteractiveMarkers.js provides an implementation of [Interactive Markers](http://www.ros.org/wiki/interactive_markers) 
-for the web based on (ros.jshttps://github.com/RobotWebTools/rosjs] and 
-(three.js)[https://github.com/mrdoob/three.js/].
+for the web based on [ros.js](https://github.com/RobotWebTools/rosjs) and 
+[three.js](https://github.com/mrdoob/three.js/).
 
 In order to reduce data traffic, it requires you to run a 
 [proxy node](https://github.com/dgossow/interactive_marker_proxy) on the topic that you are subscribing to.
