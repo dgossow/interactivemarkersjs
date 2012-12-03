@@ -9,16 +9,16 @@
 
   var ThreeInteraction = {};
   
-  var MouseHandler = ThreeInteraction.MouseHandler = function(renderer, camera, scene, fallbackTarget) {
+  var MouseHandler = ThreeInteraction.MouseHandler = function(renderer, camera, rootObj, fallbackTarget) {
   
-    if (!renderer || !renderer.domElement || !camera || !scene) {
+    if (!renderer || !renderer.domElement || !camera || !rootObj) {
       return;
     }
   
     THREE.EventTarget.call(this);
   
     this.camera = camera;
-    this.scene = scene;
+    this.rootObj = rootObj;
     this.renderer = renderer;
     this.projector = new THREE.Projector();
     this.lastTarget = fallbackTarget;
@@ -91,7 +91,7 @@
     var target = this.lastTarget;
   
     // In the normal case, we need to check what is under the mouse
-    intersections = mouseRay.intersectObject(this.scene, true);
+    intersections = mouseRay.intersectObject(this.rootObj, true);
     if (intersections.length > 0) {
       target = intersections[0].object;
       event3d.intersection = this.lastIntersection = intersections[0];
