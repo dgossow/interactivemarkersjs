@@ -3,13 +3,13 @@
     define(['eventemitter2'], factory);
   }
   else {
-    root.ImTunnel = factory(root.EventEmitter2);
+    root.ImProxy = factory(root.EventEmitter2);
   }
 }(this, function (EventEmitter2) {
 
-  var ImTunnel = {};
+  var ImProxy = {};
 
-  var Client = ImTunnel.Client = function(ros) {
+  var Client = ImProxy.Client = function(ros) {
     this.ros = ros;
     this.interactiveMarkers = {};
   };
@@ -69,7 +69,7 @@
         delete that.interactiveMarkers[markerMessage.name];
       }
 
-      var marker = new ImTunnel.IntMarkerHandle(markerMessage, that.feedbackTopic);
+      var marker = new ImProxy.IntMarkerHandle(markerMessage, that.feedbackTopic);
       that.interactiveMarkers[markerMessage.name] = marker;
       that.emit('created_marker', marker);
     });
@@ -77,7 +77,7 @@
   
   /* Handle with signals for a single interactive marker */
 
-  var IntMarkerHandle = ImTunnel.IntMarkerHandle = function(options, feedbackTopic) {
+  var IntMarkerHandle = ImProxy.IntMarkerHandle = function(options, feedbackTopic) {
     this.feedbackTopic = feedbackTopic;
     this.pose     = options.pose;
     this.name     = options.name;
@@ -144,5 +144,5 @@
     this.feedbackTopic.publish(feedback);
   };
 
-  return ImTunnel;
+  return ImProxy;
 }));
