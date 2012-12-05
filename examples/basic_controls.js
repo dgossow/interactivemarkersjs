@@ -1,4 +1,4 @@
-(function(THREE) {
+InteractiveMarkerDisplay=new (function(THREE) {
 
   var camera, cameraControls, scene, renderer;
   
@@ -76,7 +76,10 @@
     // show interactive markers
     imClient = new ImProxy.Client(ros);
     imViewer = new ImThree.Viewer(selectableObjs, imClient);
-    imClient.subscribe('/basic_controls');
+  }
+  
+  this.subscribe = function( topic ) {
+    imClient.subscribe(topic);
   }
 
   function animate() {
