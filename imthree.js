@@ -378,11 +378,15 @@
     control.markers.forEach(function(markerMsg) {
       var markerHelper = new MarkersThree.MarkerHelper(markerMsg);
   
-      // convert position into my own local coordinate frame
-      markerHelper.position.addSelf(posInv);
-      rotInv.multiplyVector3(markerHelper.position);
-      markerHelper.quaternion.multiply(rotInv, markerHelper.quaternion);
-      markerHelper.updateMatrixWorld();
+      if ( markerMsg.header.frame_id !== "" )
+      {
+        // if the marker lives in its own coordinate frame,
+        // convert position into IM's local coordinate frame
+        markerHelper.position.addSelf(posInv);
+        rotInv.multiplyVector3(markerHelper.position);
+        markerHelper.quaternion.multiply(rotInv, markerHelper.quaternion);
+        markerHelper.updateMatrixWorld();
+      }
   
       that.add(markerHelper);
     });
