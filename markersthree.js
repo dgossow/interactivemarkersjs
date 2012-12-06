@@ -9,9 +9,20 @@
 
   var MarkersThree = {};
   
-  var MarkerHelper = MarkersThree.MarkerHelper = function(markerMsg) {
+  var meshWarningPrinted = false;
+  
+  var MarkerHelper = MarkersThree.MarkerHelper = function(markerMsg, meshBaseUrl) {
     
     THREE.Object3D.call(this);
+    
+    if (meshBaseUrl !== undefined) {
+      this.meshBaseUrl = meshBaseUrl;
+      if(this.meshBaseUrl.substr(this.meshBaseUrl.length-1)!= "/") {
+       this.meshBaseUrl = this.meshBaseUrl + "/";
+      }
+    } else if ( !meshWarningPrinted ) {
+        console.log( "Warning: no mesh base URL given. Will not be able to display mesh markers." );
+    }
   
     var that = this;
     var geom = null;
@@ -140,7 +151,7 @@
         break;
   
       case MESH_RESOURCE:
-        var meshMarker = new THREE.MeshMarkerHelper( markerMsg );
+        var meshMarker = new THREE.MeshMarkerHelper( markerMsg, this.meshBaseUrl );
         this.add(meshMarker);
         break;
   
@@ -232,22 +243,28 @@
   
   /* Mesh Marker */
 
-  THREE.MeshMarkerHelper = function(markerMsg) {
+  THREE.MeshMarkerHelper = function(markerMsg, meshBaseUrl) {
     
-    THREE.Mesh.call(this,new THREE.CubeGeometry(0.01, 0.01, 0.01), new THREE.MeshBasicMaterial());
+    if ( meshBaseUrl == undefined )
+    {
+      THREE.Mesh.call(this,new THREE.CubeGeometry(0.01, 0.01, 0.01), new THREE.MeshBasicMaterial());
+    } else {
+      THREE.Mesh.call(this,new THREE.CubeGeometry(0.01, 0.01, 0.01), new THREE.MeshBasicMaterial());
+//      THREE.Object3D.call(this);
   
-    var loader = new THREE.ColladaLoader();
-    var url = 'http://localhost/PKG' + markerMsg.mesh_resource.substr(9);
-    
-    var that = this;
-    
-    loader.load(url, function colladaReady(collada) {
-      var sceneObj = collada.scene;
-      sceneObj.children[0].material = new THREE.MeshLambertMaterial({
-        color:0x888888
-        });
-      that.add(sceneObj);
-    });
+      var loader = new THREE.ColladaLoader();
+      var url = meshBaseUrl + markerMsg.mesh_resource.substr(10);
+      
+      var that = this;
+      
+      loader.load(url, function colladaReady(collada) {
+        var sceneObj = collada.scene;
+        sceneObj.children[0].material = new THREE.MeshLambertMaterial({
+          color:0x888888
+          });
+        that.add(sceneObj);
+      });
+    }
   };
   
   THREE.MeshMarkerHelper.prototype = Object.create(THREE.Mesh.prototype);

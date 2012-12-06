@@ -72,10 +72,12 @@ InteractiveMarkerDisplay=new (function(THREE) {
 
     // connect to rosbridge
     var ros = new ROS('ws://localhost:9090');
+    
+    var meshBaseUrl = 'http://localhost:8000/resources/';
 
     // show interactive markers
     imClient = new ImProxy.Client(ros);
-    imViewer = new ImThree.Viewer(selectableObjs, imClient);
+    imViewer = new ImThree.Viewer(selectableObjs, imClient, meshBaseUrl);
   }
   
   this.subscribe = function( topic ) {
