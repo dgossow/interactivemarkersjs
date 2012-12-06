@@ -4,6 +4,8 @@ for the web based on [ros.js](https://github.com/RobotWebTools/rosjs) and
 
 In order to reduce data traffic, it requires you to run a 
 [proxy node](https://github.com/dgossow/interactive_marker_proxy) on the topic that you are subscribing to.
+Please also use the most recent source version of interative_markers, as some changes are not released yet 
+(on ROS Fuerte, use [this branch](https://github.com/ros-interactive-manipulation/interactive_markers/tree/fuerte-devel)).
 
 The library is designed to be modular, lightweight and to follow the UMD convention. 
 
