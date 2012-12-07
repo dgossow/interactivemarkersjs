@@ -10,7 +10,18 @@
       }
     </style>
   </head>
-  <body>
+  <body onload="subscribe();">
+    
+    <script>
+      function subscribe() {
+        InteractiveMarkerDisplay.subscribe(document.getElementById('topic').value);
+      }
+    </script>
+
+    Topic: 
+    <input value="/basic_controls" id="topic"/>
+    <input type="button" value="Subscribe" onclick="subscribe();"></button>
+    <br>
 
     <div id="container"></div>
 
@@ -24,6 +35,7 @@
 
     <script src="include/helpers/RosAxisHelper.js"></script>
     <script src="include/helpers/RosOrbitControls.js"></script>
+    
     <script src="basic_controls.js"></script>
 
   </body>

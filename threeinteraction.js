@@ -9,16 +9,16 @@
 
   var ThreeInteraction = {};
   
-  var MouseHandler = ThreeInteraction.MouseHandler = function(renderer, camera, scene, fallbackTarget) {
+  var MouseHandler = ThreeInteraction.MouseHandler = function(renderer, camera, rootObj, fallbackTarget) {
   
-    if (!renderer || !renderer.domElement || !camera || !scene) {
+    if (!renderer || !renderer.domElement || !camera || !rootObj) {
       return;
     }
   
     THREE.EventTarget.call(this);
   
     this.camera = camera;
-    this.scene = scene;
+    this.rootObj = rootObj;
     this.renderer = renderer;
     this.projector = new THREE.Projector();
     this.lastTarget = fallbackTarget;
@@ -52,9 +52,11 @@
   
     var intersections = [];
   
+    
     // compute normalized device coords and 3d mouse ray
-    var deviceX = (domEvent.clientX / domEvent.target.clientWidth) * 2 - 1;
-    var deviceY = -(domEvent.clientY / domEvent.target.clientHeight) * 2 + 1;
+    var target = domEvent.target;
+    var deviceX = (domEvent.clientX - target.offsetLeft) / target.clientWidth * 2 - 1;
+    var deviceY = -(domEvent.clientY - target.offsetTop) / target.clientHeight * 2 + 1;
   
     var vector = new THREE.Vector3(deviceX, deviceY, 0.5);
     this.projector.unprojectVector(vector, this.camera);
@@ -89,7 +91,7 @@
     var target = this.lastTarget;
   
     // In the normal case, we need to check what is under the mouse
-    intersections = mouseRay.intersectObject(this.scene, true);
+    intersections = mouseRay.intersectObject(this.rootObj, true);
     if (intersections.length > 0) {
       target = intersections[0].object;
       event3d.intersection = this.lastIntersection = intersections[0];

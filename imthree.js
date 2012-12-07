@@ -1,6 +1,6 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['eventemitter2'], factory);
+    define(['three'], factory);
   }
   else {
     root.ImThree = factory(root.THREE);
@@ -9,17 +9,17 @@
 
   var ImThree = {};
   
-  var InteractiveMarker = ImThree.InteractiveMarker = function(options) {
+  var InteractiveMarker = ImThree.InteractiveMarker = function(handle, meshBaseUrl) {
     THREE.Object3D.call(this);
     THREE.EventTarget.call(this);
   
     var that = this;
   
-    this.name = options.name;
+    this.name = handle.name;
   
     this.dragging = false;
     this.onServerSetPose({
-      pose : options.pose
+      pose : handle.pose
     });
   
     this.dragStart = {
@@ -30,8 +30,8 @@
       event3d : {}
     };
   
-    options.controls.forEach(function(control) {
-      that.add(new ImThree.InteractiveMarkerControl(that, control));
+    handle.controls.forEach(function(control) {
+      that.add(new ImThree.InteractiveMarkerControl(that, control, meshBaseUrl));
     });
   };
   
@@ -292,7 +292,7 @@
     this.updateMatrixWorld(true);
   }
   
-  var InteractiveMarkerControl = ImThree.InteractiveMarkerControl = function(parent, control) {
+  var InteractiveMarkerControl = ImThree.InteractiveMarkerControl = function(parent, control, meshBaseUrl) {
     THREE.Object3D.call(this);
     THREE.EventTarget.call(this);
   
@@ -376,13 +376,17 @@
   
     // create visuals (markers)
     control.markers.forEach(function(markerMsg) {
-      var markerHelper = new MarkersThree.MarkerHelper(markerMsg);
+      var markerHelper = new MarkersThree.MarkerHelper(markerMsg, meshBaseUrl);
   
-      // convert position into my own local coordinate frame
-      markerHelper.position.addSelf(posInv);
-      rotInv.multiplyVector3(markerHelper.position);
-      markerHelper.quaternion.multiply(rotInv, markerHelper.quaternion);
-      markerHelper.updateMatrixWorld();
+      if ( markerMsg.header.frame_id !== "" )
+      {
+        // if the marker lives in its own coordinate frame,
+        // convert position into IM's local coordinate frame
+        markerHelper.position.addSelf(posInv);
+        rotInv.multiplyVector3(markerHelper.position);
+        markerHelper.quaternion.multiply(rotInv, markerHelper.quaternion);
+        markerHelper.updateMatrixWorld();
+      }
   
       that.add(markerHelper);
     });
@@ -391,9 +395,10 @@
   
   InteractiveMarkerControl.prototype = Object.create(THREE.Object3D.prototype);
   
-  var Viewer = ImThree.Viewer = function ( scene, intMarkerClient ) {
+  var Viewer = ImThree.Viewer = function ( scene, intMarkerClient, meshBaseUrl ) {
     this.scene = scene;
     this.root = new THREE.Object3D();
+    this.meshBaseUrl = meshBaseUrl;
     scene.add(this.root);
 
     var that=this;
@@ -403,7 +408,7 @@
   };
 
   Viewer.prototype.addMarker = function(intMarkerHandle) {
-    var intMarker = new InteractiveMarker(intMarkerHandle, this.feedbackTopic);
+    var intMarker = new InteractiveMarker(intMarkerHandle, this.meshBaseUrl);
     this.root.add(intMarker);
     
     intMarkerHandle.on('server_updated_pose', function(pose) {

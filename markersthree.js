@@ -9,9 +9,20 @@
 
   var MarkersThree = {};
   
-  var MarkerHelper = MarkersThree.MarkerHelper = function(markerMsg) {
+  var meshWarningPrinted = false;
+  
+  var MarkerHelper = MarkersThree.MarkerHelper = function(markerMsg, meshBaseUrl) {
     
     THREE.Object3D.call(this);
+    
+    if (meshBaseUrl !== undefined) {
+      this.meshBaseUrl = meshBaseUrl;
+      if(this.meshBaseUrl.substr(this.meshBaseUrl.length-1)!= "/") {
+       this.meshBaseUrl = this.meshBaseUrl + "/";
+      }
+    } else if ( !meshWarningPrinted ) {
+        console.log( "Warning: no mesh base URL given. Will not be able to display mesh markers." );
+    }
   
     var that = this;
     var geom = null;
@@ -140,7 +151,7 @@
         break;
   
       case MESH_RESOURCE:
-        var meshMarker = new THREE.MeshMarkerHelper( markerMsg );
+        var meshMarker = new THREE.MeshMarkerHelper( markerMsg, this.meshBaseUrl );
         this.add(meshMarker);
         break;
   
@@ -232,22 +243,28 @@
   
   /* Mesh Marker */
 
-  THREE.MeshMarkerHelper = function(markerMsg) {
+  THREE.MeshMarkerHelper = function(markerMsg, meshBaseUrl) {
     
-    THREE.Mesh.call(this,new THREE.CubeGeometry(0.01, 0.01, 0.01), new THREE.MeshBasicMaterial());
+    if ( meshBaseUrl == undefined )
+    {
+      THREE.Mesh.call(this,new THREE.CubeGeometry(0.01, 0.01, 0.01), new THREE.MeshBasicMaterial());
+    } else {
+      THREE.Mesh.call(this,new THREE.CubeGeometry(0.01, 0.01, 0.01), new THREE.MeshBasicMaterial());
+//      THREE.Object3D.call(this);
   
-    var loader = new THREE.ColladaLoader();
-    var url = 'http://localhost/PKG' + markerMsg.mesh_resource.substr(9);
-    
-    var that = this;
-    
-    loader.load(url, function colladaReady(collada) {
-      var sceneObj = collada.scene;
-      sceneObj.children[0].material = new THREE.MeshLambertMaterial({
-        color:0x888888
-        });
-      that.add(sceneObj);
-    });
+      var loader = new THREE.ColladaLoader();
+      var url = meshBaseUrl + markerMsg.mesh_resource.substr(10);
+      
+      var that = this;
+      
+      loader.load(url, function colladaReady(collada) {
+        var sceneObj = collada.scene;
+        //sceneObj.children[0].material = new THREE.MeshLambertMaterial({
+        //  color:0x888888
+        //  });
+        that.add(sceneObj);
+      });
+    }
   };
   
   THREE.MeshMarkerHelper.prototype = Object.create(THREE.Mesh.prototype);
@@ -3316,12 +3333,12 @@
   
         element = element.childNodes[1];
   
-        if ( element.childNodes[1] && element.childNodes[1].nodeName === 'technique' ) {
-  
-          element = element.childNodes[1];
-  
-        }
-  
+      }
+
+      if ( element.childNodes[1] && element.childNodes[1].nodeName === 'technique' ) {
+
+        element = element.childNodes[1];
+
       }
   
       for ( var i = 0; i < element.childNodes.length; i ++ ) {
@@ -3425,29 +3442,29 @@
             if ( cot instanceof ColorOrTexture ) {
   
               if ( cot.isTexture() ) {
+                
+                var samplerId = cot.texture;
+                var surfaceId = this.effect.sampler[samplerId].source;
   
-                if ( this.effect.sampler && this.effect.surface ) {
-  
-                  if ( this.effect.sampler.source == this.effect.surface.sid ) {
-  
-                    var image = images[this.effect.surface.init_from];
-  
-                    if ( image ) {
-  
-                      var texture = THREE.ImageUtils.loadTexture(baseUrl + image.init_from);
-                      texture.wrapS = cot.texOpts.wrapU ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
-                      texture.wrapT = cot.texOpts.wrapV ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
-                      texture.offset.x = cot.texOpts.offsetU;
-                      texture.offset.y = cot.texOpts.offsetV;
-                      texture.repeat.x = cot.texOpts.repeatU;
-                      texture.repeat.y = cot.texOpts.repeatV;
-                      props['map'] = texture;
-  
-                      // Texture with baked lighting?
-                      if ( prop === 'emission' ) props[ 'emissive' ] = 0xffffff;
-  
-                    }
-  
+                if ( surfaceId ) {
+
+                  var surface = this.effect.surface[surfaceId];
+                  var image = images[surface.init_from];
+
+                  if ( image ) {
+
+                    var texture = THREE.ImageUtils.loadTexture(baseUrl + image.init_from);
+                    texture.wrapS = cot.texOpts.wrapU ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
+                    texture.wrapT = cot.texOpts.wrapV ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
+                    texture.offset.x = cot.texOpts.offsetU;
+                    texture.offset.y = cot.texOpts.offsetV;
+                    texture.repeat.x = cot.texOpts.repeatU;
+                    texture.repeat.y = cot.texOpts.repeatV;
+                    props['map'] = texture;
+
+                    // Texture with baked lighting?
+                    if ( prop === 'emission' ) props[ 'emissive' ] = 0xffffff;
+
                   }
   
                 }
@@ -3521,14 +3538,14 @@
         case 'phong':
         case 'blinn':
   
-          props.color = props.diffuse;
+          if (props.diffuse) props.color = props.diffuse;
           this.material = new THREE.MeshPhongMaterial( props );
           break;
   
         case 'lambert':
         default:
   
-          props.color = props.diffuse;
+          if (props.diffuse) props.color = props.diffuse;
           this.material = new THREE.MeshLambertMaterial( props );
           break;
   
@@ -3647,9 +3664,8 @@
       this.id = "";
       this.name = "";
       this.shader = null;
-      this.surface = null;
-      this.sampler = null;
-  
+      this.surface = {};
+      this.sampler = {};
     };
   
     Effect.prototype.create = function () {
@@ -3707,14 +3723,12 @@
   
           case 'surface':
   
-            this.surface = ( new Surface( this ) ).parse( child );
-            this.surface.sid = sid;
+            this.surface[sid] = ( new Surface( this ) ).parse( child );
             break;
   
           case 'sampler2D':
   
-            this.sampler = ( new Sampler2D( this ) ).parse( child );
-            this.sampler.sid = sid;
+            this.sampler[sid] = ( new Sampler2D( this ) ).parse( child );
             break;
   
           case 'extra':
