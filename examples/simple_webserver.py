@@ -23,7 +23,7 @@ class MyHandler(BaseHTTPRequestHandler):
                         self.send_error(404, "Resource not found: %s" % splitPath[1])
                         return
 
-                    subdir = self.path.replace('/PKG/' + splitPath[1], '')
+                    subdir = self.path.replace('/resources/' + splitPath[1], '')
                     filePath = pkg_path + subdir
 
                     try:

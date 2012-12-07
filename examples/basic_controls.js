@@ -1,6 +1,8 @@
-(function(THREE) {
+InteractiveMarkerDisplay=new (function(THREE) {
 
-  var camera, cameraControls, scene0, scene1, renderer;
+  var camera, cameraControls, scene, renderer;
+  
+  var selectableObjs;
 
   var directionalLight;
 
@@ -20,16 +22,19 @@
     camera.position.z = 3;
 
     // setup scene
-    scene0 = new THREE.Scene();
-    scene1 = new THREE.Scene();
+    scene = new THREE.Scene();
 
     // setup camera mouse control
     cameraControls = new THREE.RosOrbitControls(camera);
 
+    // add node to host selectable objects
+    selectableObjs = new THREE.Object3D;
+    scene.add(selectableObjs);
+
     // add lights
-    scene0.add(new THREE.AmbientLight(0x555555));
+    scene.add(new THREE.AmbientLight(0x555555));
     directionalLight = new THREE.DirectionalLight(0xffffff);
-    scene0.add(directionalLight);
+    scene.add(directionalLight);
 
     // add x/y grid
     var numCells = 50;
@@ -41,11 +46,11 @@
       transparent : true
     });
     var gridObj = new THREE.Mesh(gridGeom, gridMaterial);
-    scene1.add(gridObj);
+    scene.add(gridObj);
 
     // add coordinate frame visualization
     axes = new THREE.Axes();
-    scene1.add(axes);
+    scene.add(axes);
 
     renderer = new THREE.WebGLRenderer({
       antialias : true
@@ -60,18 +65,23 @@
     container.appendChild(renderer.domElement);
 
     // propagates mouse events to three.js objects
-    mouseHandler = new ThreeInteraction.MouseHandler(renderer, camera, scene0, cameraControls);
+    mouseHandler = new ThreeInteraction.MouseHandler(renderer, camera, selectableObjs, cameraControls);
 
     // highlights the receiver of mouse events
     highlighter = new ThreeInteraction.Highlighter(mouseHandler);
 
     // connect to rosbridge
     var ros = new ROS('ws://localhost:9090');
+    
+    var meshBaseUrl = 'http://localhost:8000/resources/';
 
     // show interactive markers
     imClient = new ImProxy.Client(ros);
-    imViewer = new ImThree.Viewer(scene0, imClient);
-    imClient.subscribe('/basic_controls');
+    imViewer = new ImThree.Viewer(selectableObjs, imClient, meshBaseUrl);
+  }
+  
+  this.subscribe = function( topic ) {
+    imClient.subscribe(topic);
   }
 
   function animate() {
@@ -83,13 +93,9 @@
     directionalLight.position.normalize();
 
     renderer.clear(true, true, true);
-    renderer.render(scene0, camera);
+    renderer.render(scene, camera);
 
-    highlighter.renderHighlight(renderer, scene0, camera);
-
-    // clear depth & stencil & render overlay scene
-    //renderer.clear(false, true, true);
-    renderer.render(scene1, camera);
+    highlighter.renderHighlight(renderer, scene, camera);
 
     requestAnimationFrame(animate);
   }
