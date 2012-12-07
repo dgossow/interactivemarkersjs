@@ -26,17 +26,35 @@ class MyHandler(BaseHTTPRequestHandler):
                     subdir = self.path.replace('/resources/' + splitPath[1], '')
                     filePath = pkg_path + subdir
 
+                    fileHead, fileTail = path.split(filePath)
+                    fileName, fileExtension = path.splitext(fileTail);
+
+                    print fileName;
+                    print fileExtension;
+                    
+                    print "opening ", filePath
+                    # convert tif to png 
+                    # (needs ImageMagick. PIL can't read some of the PR2 tiff files)
+                    if fileExtension == '.tif':
+                        pngFile = '/tmp/' + fileName + '.png'
+                        print pngFile
+                        
+                        from subprocess import call
+                        call(["convert", filePath, pngFile ])
+                        
+                        filePath = pngFile
+
                     try:
-                        f = open(filePath) 
+                        f = open(filePath)
                     except:
                         self.send_error(404, 'Requested file not found: %s' % self.path)
                         return
 
                     self.send_response(200)
-                    self.send_header('Content-Type', "text/html")
                     self.send_header('Content-Length', path.getsize(filePath))
                     self.end_headers()
                     self.wfile.write(f.read())
+                    
                     f.close()
                     return
                 else:
