@@ -62,27 +62,28 @@
     });
 
     // Adds new markers
-    message.markers.forEach(function(markerMessage) {
-      var oldMarker = that.interactiveMarkers[markerMessage.name];
+    message.markers.forEach(function(imMsg) {
+      var oldMarker = that.interactiveMarkers[imMsg.name];
       if (oldMarker) {
         that.emit('deleted_marker', oldMarker);
-        delete that.interactiveMarkers[markerMessage.name];
+        delete that.interactiveMarkers[imMsg.name];
       }
 
-      var marker = new ImProxy.IntMarkerHandle(markerMessage, that.feedbackTopic);
-      that.interactiveMarkers[markerMessage.name] = marker;
+      var marker = new ImProxy.IntMarkerHandle(imMsg, that.feedbackTopic);
+      that.interactiveMarkers[imMsg.name] = marker;
       that.emit('created_marker', marker);
     });
   };
   
   /* Handle with signals for a single interactive marker */
 
-  var IntMarkerHandle = ImProxy.IntMarkerHandle = function(options, feedbackTopic) {
+  var IntMarkerHandle = ImProxy.IntMarkerHandle = function(imMsg, feedbackTopic) {
     this.feedbackTopic = feedbackTopic;
-    this.pose     = options.pose;
-    this.name     = options.name;
-    this.header   = options.header;
-    this.controls = options.controls;
+    this.pose     = imMsg.pose;
+    this.name     = imMsg.name;
+    this.header   = imMsg.header;
+    this.controls = imMsg.controls;
+    this.menuEntries = imMsg.menu_entries;
   };
   
   IntMarkerHandle.prototype.__proto__ = EventEmitter2.prototype;

@@ -33,6 +33,8 @@
     handle.controls.forEach(function(control) {
       that.add(new ImThree.InteractiveMarkerControl(that, control, meshBaseUrl));
     });
+    
+    this.menu = new Menu( handle.menuEntries );
   };
   
   InteractiveMarker.prototype = Object.create(THREE.Object3D.prototype);
@@ -119,6 +121,11 @@
     intersectPoint.add( mouseRay.origin, mouseRay.direction.clone().multiplyScalar( scalar ) );
     return intersectPoint;
   };
+  
+  InteractiveMarker.prototype.showMenu=function(event)
+  {
+    this.menu.show(event);
+  }
   
   
   InteractiveMarker.prototype.moveAxis = function(control, origAxis, event3d) {
@@ -341,6 +348,7 @@
     if (control.interaction_mode != NONE) {
       this.addEventListener('mousedown', parent.startDrag.bind(parent));
       this.addEventListener('mouseup', parent.stopDrag.bind(parent));
+      this.addEventListener('contextmenu', parent.showMenu.bind(parent));
       this.addEventListener('mouseover', stopPropagation);
       this.addEventListener('mouseout', stopPropagation);
       this.addEventListener('click', stopPropagation);
@@ -400,6 +408,7 @@
     this.root = new THREE.Object3D();
     this.meshBaseUrl = meshBaseUrl;
     scene.add(this.root);
+    
 
     var that=this;
 
@@ -426,6 +435,90 @@
   Viewer.prototype.eraseMarker = function(event) {
     this.root.remove(this.root.getChildByName(event.name));
   };
+  
+  Menu = ImThree.Menu = function( menuEntries )
+  {
+    var allMenus = [];
+    
+    allMenus[0] = { children:[] };
+    
+    this.menuDomElem = document.createElement("div");
+    this.menuDomElem.style.position = "absolute";
+    this.menuDomElem.className = "interactive_marker_menu";
+
+    this.overlayDomElem = document.createElement("div");
+    this.overlayDomElem.style.visibility = "hidden";
+    this.overlayDomElem.className = "interactive_marker_overlay";
+
+    this.hideListener = this.hide.bind(this);
+    this.overlayDomElem.addEventListener("contextmenu", this.hideListener);
+    this.overlayDomElem.addEventListener("click", this.hideListener);
+
+    document.body.appendChild(this.overlayDomElem);
+    document.body.appendChild(this.menuDomElem);
+    
+    // parse all entries
+    for (var i=0; i<menuEntries.length; i++) {
+      var entry = menuEntries[i];
+      var id = entry.id;
+      allMenus[id] = { 
+        title: entry.title,
+        children: []
+      };
+    }
+    
+    // link children to parents
+    for (var i=0; i<menuEntries.length; i++) {
+      var entry = menuEntries[i];
+      var id = entry.id;
+      var menu = allMenus[ id ];
+      var parent = allMenus[ entry.parent_id ];
+      parent.children.push( menu );
+    }
+
+    // create html menu, starting from root (id 0)    
+    function makeUl( parentDomElem, parentMenu ) {
+      
+      var ulElem = document.createElement("ul");
+      parentDomElem.appendChild(ulElem);
+      
+      var children = parentMenu.children;
+      //console.log(children);
+      
+      for (var i=0; i<children.length; i++) {
+        var liElem = document.createElement("li");
+        liElem.appendChild(document.createTextNode( children[i].title ));
+        ulElem.appendChild( liElem );
+
+        if ( children[i].children.length > 0 ) {
+          makeUl( liElem, children[i] );
+        }
+      }
+      
+    }
+    
+    // construct dom element
+    makeUl( this.menuDomElem, allMenus[0] );
+  }
+  
+  Menu.prototype.show = function(event) {
+    this.overlayDomElem.style.visibility = "visible";
+    this.menuDomElem.style.visibility = "visible";
+    
+    this.menuDomElem.style.left = event.domEvent.clientX + 'px';
+    this.menuDomElem.style.top = event.domEvent.clientY  + 'px';
+    
+    console.log(event.domEvent);
+  }
+
+  Menu.prototype.hide = function(event) {
+    //event.preventDefault();
+    
+    this.overlayDomElem.style.visibility = "hidden";
+    this.menuDomElem.style.visibility = "hidden";
+
+    console.log(event);
+  }
 
   return ImThree;
 }));

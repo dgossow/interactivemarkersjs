@@ -26,18 +26,13 @@
     this.fallbackTarget = fallbackTarget;
   
     // listen to DOM events
-    var eventNames = ["click", "dblclick", "mouseout", "mousedown", "mouseup", "mousemove", "mousewheel"];
+    var eventNames = ["contextmenu", "click", "dblclick", "mouseout", "mousedown", "mouseup", "mousemove", "mousewheel"];
     this.listeners = {};
   
     eventNames.forEach(function(eventName) {
       this.listeners[eventName] = this.processDomEvent.bind(this);
       this.renderer.domElement.addEventListener(eventName, this.listeners[eventName], false);
     }, this);
-    
-    // prevent context menu
-    this.renderer.domElement.addEventListener('contextmenu', function(event) {
-      event.preventDefault();
-    }, false);
   }
   
   MouseHandler.prototype.destroy = function() {
@@ -86,6 +81,8 @@
     if (domEvent.type == "mouseout") {
       this.dragging = false;
       this.notify(this.lastTarget, "mouseout", event3d);
+      this.lastTarget=null;
+      return;
     }
   
     var target = this.lastTarget;
@@ -120,7 +117,7 @@
     // pass through event
     this.notify(target, domEvent.type, event3d);
   
-    if (domEvent.type === "mousedown") {
+    if (domEvent.type === "mousedown" && domEvent.button==1) {
       this.dragging = true;
     }
   
