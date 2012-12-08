@@ -117,7 +117,7 @@
     // pass through event
     this.notify(target, domEvent.type, event3d);
   
-    if (domEvent.type === "mousedown" && domEvent.button==1) {
+    if (domEvent.type === "mousedown" && domEvent.button==0) {
       this.dragging = true;
     }
   

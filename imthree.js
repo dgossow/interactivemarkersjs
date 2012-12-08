@@ -34,7 +34,9 @@
       that.add(new ImThree.InteractiveMarkerControl(that, control, meshBaseUrl));
     });
     
-    this.menu = new Menu( handle.menuEntries );
+    if ( handle.menuEntries.length > 0 ) {
+      this.menu = new Menu( handle.menuEntries );
+    }
   };
   
   InteractiveMarker.prototype = Object.create(THREE.Object3D.prototype);
@@ -124,7 +126,9 @@
   
   InteractiveMarker.prototype.showMenu=function(event)
   {
-    this.menu.show(event);
+    if ( this.menu ) {
+      this.menu.show(event);
+    }
   }
   
   
@@ -215,7 +219,9 @@
   };
   
   InteractiveMarker.prototype.startDrag = function(event3d) {
-    console.log('start dragging');
+    if (event3d.domEvent.button !== 0) {
+      return;
+    }
     event3d.stopPropagation();
     this.dragging = true;
     this.updateMatrixWorld(true);
@@ -233,7 +239,9 @@
   }
   
   InteractiveMarker.prototype.stopDrag = function(event3d) {
-    console.log('stop dragging');
+    if (event3d.domEvent.button !== 0) {
+      return;
+    }
     event3d.stopPropagation();
     this.dragging = false;
     this.dragStart.event3d = {};
@@ -248,7 +256,6 @@
   }
   
   InteractiveMarker.prototype.buttonClick = function(event3d) {
-    console.log('buttonClick');
     event3d.stopPropagation();
   
     this.dispatchEvent({
