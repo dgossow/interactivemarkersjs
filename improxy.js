@@ -125,7 +125,13 @@
     this.sendFeedback(MOUSE_UP, event.clickPosition);
   }
 
-  IntMarkerHandle.prototype.sendFeedback = function(eventType, clickPosition) {
+  IntMarkerHandle.prototype.onMenuSelect = function(event) {
+    this.sendFeedback(MENU_SELECT, undefined, event.id);
+  }
+
+  IntMarkerHandle.prototype.sendFeedback = function(eventType, clickPosition, menu_entry_id) {
+    
+    var mouse_point_valid = clickPosition !== undefined;
     var clickPosition = clickPosition || {
       x : 0,
       y : 0,
@@ -139,7 +145,9 @@
       control_name : '',
       event_type   : eventType,
       pose         : this.pose,
-      mouse_point  : clickPosition
+      mouse_point  : clickPosition,
+      mouse_point_valid: mouse_point_valid,
+      menu_entry_id: menu_entry_id
     }
 
     this.feedbackTopic.publish(feedback);
