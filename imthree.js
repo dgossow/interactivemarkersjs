@@ -550,8 +550,8 @@
     intMarker.addEventListener('menu_select', intMarkerHandle.onMenuSelect.bind(intMarkerHandle));
   };
 
-  Viewer.prototype.eraseMarker = function(event) {
-    this.root.remove(this.root.getChildByName(event.name));
+  Viewer.prototype.eraseMarker = function(name) {
+    this.root.remove(this.root.getChildByName(name));
   };
   
   return ImThree;

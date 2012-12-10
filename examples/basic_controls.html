@@ -17,11 +17,15 @@
       function subscribe() {
         InteractiveMarkerDisplay.subscribe(document.getElementById('topic').value);
       }
+      function unsubscribe() {
+        InteractiveMarkerDisplay.unsubscribe();
+      }
     </script>
 
     Topic: 
     <input value="/basic_controls" id="topic"/>
     <input type="button" value="Subscribe" onclick="subscribe();"></button>
+    <input type="button" value="Unsubscribe" onclick="unsubscribe();"></button>
     <br>
 
     <div id="container"></div>

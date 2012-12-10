@@ -16,6 +16,8 @@
   Client.prototype.__proto__ = EventEmitter2.prototype;
 
   Client.prototype.subscribe = function(topicName) {
+    this.unsubscribe();
+
     this.markerUpdateTopic = new this.ros.Topic({
       name : topicName + '/tunneled/update',
       messageType : 'visualization_msgs/InteractiveMarkerUpdate'
@@ -35,7 +37,20 @@
     var request = new this.ros.ServiceRequest({});
     this.initService.callService(request, this.markerInit.bind(this));
   };
-
+  
+  Client.prototype.unsubscribe = function() {
+    if ( this.markerUpdateTopic ) {
+      this.markerUpdateTopic.unsubscribe();
+      this.feedbackTopic.unadvertise();
+    }
+    for( im in this.interactiveMarkers ) {
+      console.log(im);
+      this.emit('deleted_marker', im);
+      delete this.interactiveMarkers[im];
+    }
+    this.interactiveMarkers = {};
+  }
+  
   Client.prototype.markerInit = function(initMessage) {
     var message = initMessage.msg;
     message.erases = [];

@@ -84,6 +84,10 @@ InteractiveMarkerDisplay=new (function(THREE) {
     imClient.subscribe(topic);
   }
 
+  this.unsubscribe = function( topic ) {
+    imClient.unsubscribe();
+  }
+
   function animate() {
 
     cameraControls.update();
