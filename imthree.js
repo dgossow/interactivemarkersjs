@@ -177,19 +177,18 @@
     }
   };
   
-        function printVec(v) {
-        console.log(Math.round(v.x*10)/10,Math.round(v.y*10)/10,Math.round(v.y*10)/10);
-      }
-      function printQuat(v) {
-        console.log(Math.round(v.x*10)/10,Math.round(v.y*10)/10,Math.round(v.y*10)/10,Math.round(v.w*10)/10);
-      }
+  function printVec(v) {
+    //console.log(Math.round(v.x*10)/10,Math.round(v.y*10)/10,Math.round(v.y*10)/10);
+  }
+  function printQuat(v) {
+    //console.log(Math.round(v.x*10)/10,Math.round(v.y*10)/10,Math.round(v.y*10)/10,Math.round(v.w*10)/10);
+  }
 
-  
   InteractiveMarker.prototype.rotateAxis = function(control, origOrientation, event3d) {
     if (this.dragging) {
       control.updateMatrixWorld();
       
-      console.log("------------------_");
+      //console.log("------------------_");
       
       var currentControlOri = control.currentControlOri;
       var orientation = currentControlOri.clone().multiplySelf(origOrientation.clone());

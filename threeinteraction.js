@@ -55,7 +55,8 @@
     var vector = new THREE.Vector3(deviceX, deviceY, 0.5);
     this.projector.unprojectVector(vector, this.camera);
   
-    var mouseRay = new THREE.Raycaster(this.camera.position.clone(), vector.subSelf(this.camera.position).normalize());
+    var mouseRaycaster = new THREE.Raycaster(this.camera.position.clone(), vector.subSelf(this.camera.position).normalize());
+    var mouseRay = mouseRaycaster.ray;
   
     // make our 3d mouse event
     var event3d = {
@@ -87,7 +88,7 @@
     var target = this.lastTarget;
   
     // In the normal case, we need to check what is under the mouse
-    intersections = mouseRay.intersectObject(this.rootObj, true);
+    intersections = mouseRaycaster.intersectObject(this.rootObj, true);
     if (intersections.length > 0) {
       target = intersections[0].object;
       event3d.intersection = this.lastIntersection = intersections[0];
