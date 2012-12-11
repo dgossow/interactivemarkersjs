@@ -14,10 +14,8 @@ THREE.RosOrbitControls = function(object, domElement) {
 
   this.object = object;
 
-  // hack the tracked object (camera) to be right-handed with z=up
-  this.object.scale.x = -1;
-  this.object.scale.y = -1;
-  this.object.up = new THREE.Vector3(0, 0, -1);
+  // In ROS, z is pointing upwards
+  this.object.up = new THREE.Vector3(0, 0, 1);
 
   this.domElement = (domElement !== undefined ) ? domElement : document;
 
@@ -158,7 +156,6 @@ THREE.RosOrbitControls = function(object, domElement) {
     var theta = Math.atan2(offset.y, offset.x);
 
     // angle from y-axis
-
     var phi = Math.atan2(Math.sqrt(offset.y * offset.y + offset.x * offset.x), offset.z);
 
     if (this.autoRotate) {

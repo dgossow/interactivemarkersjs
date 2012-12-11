@@ -77,7 +77,7 @@ InteractiveMarkerDisplay=new (function(THREE) {
 
     // show interactive markers
     imClient = new ImProxy.Client(ros);
-    imViewer = new ImThree.Viewer(selectableObjs, imClient, meshBaseUrl);
+    imViewer = new ImThree.Viewer(selectableObjs, camera, imClient, meshBaseUrl);
   }
   
   this.subscribe = function( topic ) {

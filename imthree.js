@@ -9,7 +9,7 @@
 
   var ImThree = {};
   
-  var InteractiveMarker = ImThree.InteractiveMarker = function(handle, meshBaseUrl) {
+  var InteractiveMarker = ImThree.InteractiveMarker = function(handle, camera, meshBaseUrl) {
     THREE.Object3D.call(this);
     THREE.EventTarget.call(this);
   
@@ -31,7 +31,7 @@
     };
   
     handle.controls.forEach(function(control) {
-      that.add(new ImThree.InteractiveMarkerControl(that, control, meshBaseUrl));
+      that.add(new ImThree.InteractiveMarkerControl(that, control, camera, meshBaseUrl));
     });
     
     if ( handle.menuEntries.length > 0 ) {
@@ -45,110 +45,6 @@
   };
   
   InteractiveMarker.prototype = Object.create(THREE.Object3D.prototype);
-
-
-  Menu = ImThree.Menu = function( menuEntries )
-  {
-    var allMenus = [];
-    allMenus[0] = { children:[] };
-
-    THREE.EventTarget.call(this);
-    
-    var that = this;
-    
-    this.menuDomElem = document.createElement("div");
-    this.menuDomElem.style.position = "absolute";
-    this.menuDomElem.className = "interactive_marker_menu";
-    this.menuDomElem.addEventListener( "contextmenu", function(event) {
-      event.preventDefault();
-    });
-
-    this.overlayDomElem = document.createElement("div");
-    this.overlayDomElem.style.visibility = "hidden";
-    this.overlayDomElem.className = "interactive_marker_overlay";
-
-    this.hideListener = this.hide.bind(this);
-    this.overlayDomElem.addEventListener("contextmenu", this.hideListener);
-    this.overlayDomElem.addEventListener("click", this.hideListener);
-
-    document.body.appendChild(this.overlayDomElem);
-    document.body.appendChild(this.menuDomElem);
-    
-    // parse all entries
-    for (var i=0; i<menuEntries.length; i++) {
-      var entry = menuEntries[i];
-      var id = entry.id;
-      allMenus[id] = { 
-        title: entry.title,
-        id : id,
-        children: []
-      };
-    }
-    
-    // link children to parents
-    for (var i=0; i<menuEntries.length; i++) {
-      var entry = menuEntries[i];
-      var id = entry.id;
-      var menu = allMenus[ id ];
-      var parent = allMenus[ entry.parent_id ];
-      parent.children.push( menu );
-    }
-    
-    function emitMenuSelect( menuEntry, domEvent )
-    {
-      this.dispatchEvent({
-        type: "menu_select",
-        domEvent: domEvent,
-        id: menuEntry.id
-        });
-      this.hide( domEvent );        
-    }
-
-    // create html menu, starting from root (id 0)    
-    function makeUl( parentDomElem, parentMenu ) {
-      
-      var ulElem = document.createElement("ul");
-      parentDomElem.appendChild(ulElem);
-      
-      var children = parentMenu.children;
-      
-      for (var i=0; i<children.length; i++) {
-        var liElem = document.createElement("li");
-        var divElem = document.createElement("div");
-        divElem.appendChild(document.createTextNode( children[i].title ));
-        ulElem.appendChild( liElem );
-        liElem.appendChild( divElem );
-
-        if ( children[i].children.length > 0 ) {
-          makeUl( liElem, children[i] );
-          divElem.addEventListener( "click", that.hide.bind( that ) );
-        } else {
-          divElem.addEventListener( "click", emitMenuSelect.bind( that, children[i] ) );
-          divElem.className = "interactive_marker_menuentry";
-        }
-      }
-      
-    }
-    
-    // construct dom element
-    makeUl( this.menuDomElem, allMenus[0] );
-  }
-  
-  Menu.prototype.show = function(event) {
-    this.overlayDomElem.style.visibility = "visible";
-    this.menuDomElem.style.visibility = "visible";
-    
-    this.menuDomElem.style.left = event.domEvent.clientX + 'px';
-    this.menuDomElem.style.top = event.domEvent.clientY  + 'px';
-  }
-
-  Menu.prototype.hide = function(event) {
-    event.preventDefault();
-    this.overlayDomElem.style.visibility = "hidden";
-    this.menuDomElem.style.visibility = "hidden";
-  }
-
-
 
   var projector = new THREE.Projector();
   
@@ -240,9 +136,10 @@
     }
   }
   
-  InteractiveMarker.prototype.moveAxis = function(control, origAxis, event3d) {
+  InteractiveMarker.prototype.moveAxis = function(currentControlOri, origAxis, event3d) {
     if (this.dragging) {
-      var axis = control.quaternion.multiplyVector3(origAxis.clone());
+      console.log(currentControlOri);
+      var axis = currentControlOri.multiplyVector3(origAxis.clone());
       // get move axis in world coords
       var originWorld = this.dragStart.event3d.intersection.point;
       var axisWorld = this.dragStart.orientationWorld.clone().multiplyVector3(axis.clone());
@@ -261,9 +158,9 @@
     }
   };
   
-  InteractiveMarker.prototype.movePlane = function(control, origNormal, event3d) {
+  InteractiveMarker.prototype.movePlane = function(currentControlOri, origNormal, event3d) {
     if (this.dragging) {
-      var normal = control.quaternion.multiplyVector3(origNormal.clone());
+      var normal = currentControlOri.multiplyVector3(origNormal.clone());
       // get plane params in world coords
       var originWorld = this.dragStart.event3d.intersection.point;
       var normalWorld = this.dragStart.orientationWorld.multiplyVector3(normal.clone());
@@ -280,15 +177,34 @@
     }
   };
   
+        function printVec(v) {
+        console.log(Math.round(v.x*10)/10,Math.round(v.y*10)/10,Math.round(v.y*10)/10);
+      }
+      function printQuat(v) {
+        console.log(Math.round(v.x*10)/10,Math.round(v.y*10)/10,Math.round(v.y*10)/10,Math.round(v.w*10)/10);
+      }
+
+  
   InteractiveMarker.prototype.rotateAxis = function(control, origOrientation, event3d) {
     if (this.dragging) {
-      var orientation = control.quaternion.clone().multiplySelf(origOrientation);
+      control.updateMatrixWorld();
       
+      console.log("------------------_");
+      
+      var currentControlOri = control.currentControlOri;
+      var orientation = currentControlOri.clone().multiplySelf(origOrientation.clone());
+      
+      printQuat(currentControlOri);
+      printQuat(orientation);
+            
       var normal = orientation.multiplyVector3(new THREE.Vector3(1, 0, 0));
   
       // get plane params in world coords
       var originWorld = this.dragStart.event3d.intersection.point;
       var normalWorld = this.dragStart.orientationWorld.multiplyVector3(normal);
+
+      printVec(normal);
+      printVec(normalWorld);
   
       // intersect mouse ray with plane
       var intersection = intersectPlane(event3d.mouseRay, originWorld, normalWorld);
@@ -413,8 +329,10 @@
   
     this.updateMatrixWorld(true);
   }
+
+  // --------------------------------------------------------
   
-  var InteractiveMarkerControl = ImThree.InteractiveMarkerControl = function(parent, control, meshBaseUrl) {
+  var InteractiveMarkerControl = ImThree.InteractiveMarkerControl = function(parent, control, camera, meshBaseUrl) {
     THREE.Object3D.call(this);
     THREE.EventTarget.call(this);
   
@@ -431,22 +349,25 @@
     var ROTATE_AXIS = 5;
     var MOVE_ROTATE = 6;
   
-    var controlAxis = new THREE.Vector3(1, 0, 0);
-    var controlOrientation = new THREE.Quaternion(control.orientation.x, control.orientation.y, control.orientation.z, control.orientation.w);
+    var controlOri = new THREE.Quaternion(control.orientation.x, control.orientation.y, control.orientation.z, control.orientation.w);
+    controlOri.normalize();
   
     // transform x axis into local frame
-    controlOrientation.multiplyVector3(controlAxis);
+    var controlAxis = new THREE.Vector3(1, 0, 0);
+    controlOri.multiplyVector3(controlAxis);
+    
+    this.currentControlOri = new THREE.Quaternion();
   
     // determine mouse interaction
     switch(control.interaction_mode) {
       case MOVE_AXIS:
-        this.addEventListener("mousemove", parent.moveAxis.bind(parent, that, controlAxis));
+        this.addEventListener("mousemove", parent.moveAxis.bind(parent, this.currentControlOri, controlAxis));
         break;
       case ROTATE_AXIS:
-        this.addEventListener("mousemove", parent.rotateAxis.bind(parent, that, controlOrientation));
+        this.addEventListener("mousemove", parent.rotateAxis.bind(parent, this, controlOri));
         break;
       case MOVE_PLANE:
-        this.addEventListener("mousemove", parent.movePlane.bind(parent, that, controlAxis));
+        this.addEventListener("mousemove", parent.movePlane.bind(parent, this.currentControlOri, controlAxis));
         break;
       case BUTTON:
         this.addEventListener("click", parent.buttonClick.bind(parent));
@@ -480,18 +401,51 @@
     switch(control.orientation_mode) {
       case INHERIT:
         rotInv = parent.quaternion.clone().inverse();
+        that.updateMatrixWorld = function(force) {
+          ImThree.InteractiveMarkerControl.prototype.updateMatrixWorld.call(that, force);
+          that.currentControlOri.copy(that.quaternion);
+          that.currentControlOri.normalize();
+        }
         break;
       case FIXED:
         that.updateMatrixWorld = function(force) {
-          //console.log("sdfsdf")
           that.useQuaternion = true;
           that.quaternion = that.parent.quaternion.clone().inverse();
           that.updateMatrix();
           that.matrixWorldNeedsUpdate = true;
           ImThree.InteractiveMarkerControl.prototype.updateMatrixWorld.call(that, force);
+          //that.currentControlOri.copy(that.quaternion);
         }
         break;
       case VIEW_FACING:
+        var independent_marker_orientation = control.independent_marker_orientation;
+        that.updateMatrixWorld = function(force) {
+
+          camera.updateMatrixWorld();
+          var cameraRot = new THREE.Matrix4().extractRotation( camera.matrixWorld );
+          
+          var ros2Gl = new THREE.Matrix4();
+          var r90 = Math.PI*0.5;
+          var rv = new THREE.Vector3( -r90,0,r90 );
+          ros2Gl.setRotationFromEuler( rv );
+
+          var worldToLocal = new THREE.Matrix4();
+          worldToLocal.getInverse( that.parent.matrixWorld );
+          
+          cameraRot.multiply( cameraRot, ros2Gl );
+          cameraRot.multiply( worldToLocal, cameraRot );
+          
+          that.currentControlOri.setFromRotationMatrix( cameraRot );
+          
+          if ( !independent_marker_orientation ) {
+            that.useQuaternion = true;
+            that.quaternion.copy(that.currentControlOri);
+            that.updateMatrix();
+            that.matrixWorldNeedsUpdate = true;
+          }
+          
+          ImThree.InteractiveMarkerControl.prototype.updateMatrixWorld.call(that, force);
+        }
         break;
       default:
         break;
@@ -518,13 +472,116 @@
   
   InteractiveMarkerControl.prototype = Object.create(THREE.Object3D.prototype);
   
-  var Viewer = ImThree.Viewer = function ( scene, intMarkerClient, meshBaseUrl ) {
+  Menu = ImThree.Menu = function( menuEntries )
+  {
+    var allMenus = [];
+    allMenus[0] = { children:[] };
+
+    THREE.EventTarget.call(this);
+    
+    var that = this;
+    
+    this.menuDomElem = document.createElement("div");
+    this.menuDomElem.style.position = "absolute";
+    this.menuDomElem.className = "interactive_marker_menu";
+    this.menuDomElem.addEventListener( "contextmenu", function(event) {
+      event.preventDefault();
+    });
+
+    this.overlayDomElem = document.createElement("div");
+    this.overlayDomElem.style.visibility = "hidden";
+    this.overlayDomElem.className = "interactive_marker_overlay";
+
+    this.hideListener = this.hide.bind(this);
+    this.overlayDomElem.addEventListener("contextmenu", this.hideListener);
+    this.overlayDomElem.addEventListener("click", this.hideListener);
+
+    document.body.appendChild(this.overlayDomElem);
+    document.body.appendChild(this.menuDomElem);
+    
+    // parse all entries
+    for (var i=0; i<menuEntries.length; i++) {
+      var entry = menuEntries[i];
+      var id = entry.id;
+      allMenus[id] = { 
+        title: entry.title,
+        id : id,
+        children: []
+      };
+    }
+    
+    // link children to parents
+    for (var i=0; i<menuEntries.length; i++) {
+      var entry = menuEntries[i];
+      var id = entry.id;
+      var menu = allMenus[ id ];
+      var parent = allMenus[ entry.parent_id ];
+      parent.children.push( menu );
+    }
+    
+    function emitMenuSelect( menuEntry, domEvent )
+    {
+      this.dispatchEvent({
+        type: "menu_select",
+        domEvent: domEvent,
+        id: menuEntry.id
+        });
+      this.hide( domEvent );        
+    }
+
+    // create html menu, starting from root (id 0)    
+    function makeUl( parentDomElem, parentMenu ) {
+      
+      var ulElem = document.createElement("ul");
+      parentDomElem.appendChild(ulElem);
+      
+      var children = parentMenu.children;
+      
+      for (var i=0; i<children.length; i++) {
+        var liElem = document.createElement("li");
+        var divElem = document.createElement("div");
+        divElem.appendChild(document.createTextNode( children[i].title ));
+        ulElem.appendChild( liElem );
+        liElem.appendChild( divElem );
+
+        if ( children[i].children.length > 0 ) {
+          makeUl( liElem, children[i] );
+          divElem.addEventListener( "click", that.hide.bind( that ) );
+        } else {
+          divElem.addEventListener( "click", emitMenuSelect.bind( that, children[i] ) );
+          divElem.className = "interactive_marker_menuentry";
+        }
+      }
+      
+    }
+    
+    // construct dom element
+    makeUl( this.menuDomElem, allMenus[0] );
+  }
+  
+  Menu.prototype.show = function(event) {
+    this.overlayDomElem.style.visibility = "visible";
+    this.menuDomElem.style.visibility = "visible";
+    
+    this.menuDomElem.style.left = event.domEvent.clientX + 'px';
+    this.menuDomElem.style.top = event.domEvent.clientY  + 'px';
+  }
+
+  Menu.prototype.hide = function(event) {
+    event.preventDefault();
+    this.overlayDomElem.style.visibility = "hidden";
+    this.menuDomElem.style.visibility = "hidden";
+  }
+
+  // --------------------------------------------------------
+  
+  var Viewer = ImThree.Viewer = function ( scene, camera, intMarkerClient, meshBaseUrl ) {
     this.scene = scene;
+    this.camera = camera;
     this.root = new THREE.Object3D();
     this.meshBaseUrl = meshBaseUrl;
     scene.add(this.root);
     
-
     var that=this;
 
     intMarkerClient.on('created_marker', this.addMarker.bind(this));
@@ -532,7 +589,7 @@
   };
 
   Viewer.prototype.addMarker = function(intMarkerHandle) {
-    var intMarker = new InteractiveMarker(intMarkerHandle, this.meshBaseUrl);
+    var intMarker = new InteractiveMarker(intMarkerHandle, this.camera, this.meshBaseUrl);
     this.root.add(intMarker);
     
     intMarkerHandle.on('server_updated_pose', function(pose) {
