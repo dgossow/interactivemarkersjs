@@ -114,7 +114,12 @@
         break;
   
       case SPHERE:
-        addMesh(new THREE.CubeGeometry(0.1, 0.1, 0.1), colorMaterial);
+        var geom = new THREE.SphereGeometry(0.5);
+        var mesh = new THREE.Mesh(geom, colorMaterial);
+        mesh.scale.x = markerMsg.scale.x;
+        mesh.scale.y = markerMsg.scale.y;
+        mesh.scale.z = markerMsg.scale.z;
+        that.add(mesh);
         break;
   
       case CYLINDER:
