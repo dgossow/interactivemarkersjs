@@ -24,7 +24,7 @@
   -ms-user-select: none;
   user-select: none;
   cursor: default;
-  padding : 3px 5px 3px 5px;
+  padding : 3px 10px 3px 10px;
 }
 
 .interactive_marker_menuentry:hover {

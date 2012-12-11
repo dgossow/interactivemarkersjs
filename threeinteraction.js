@@ -47,16 +47,15 @@
   
     var intersections = [];
   
-    
     // compute normalized device coords and 3d mouse ray
     var target = domEvent.target;
     var deviceX = (domEvent.clientX - target.offsetLeft) / target.clientWidth * 2 - 1;
     var deviceY = -(domEvent.clientY - target.offsetTop) / target.clientHeight * 2 + 1;
-  
+    
     var vector = new THREE.Vector3(deviceX, deviceY, 0.5);
     this.projector.unprojectVector(vector, this.camera);
   
-    var mouseRay = new THREE.Ray(this.camera.position, vector.subSelf(this.camera.position).normalize());
+    var mouseRay = new THREE.Ray(this.camera.position.clone(), vector.subSelf(this.camera.position).normalize());
   
     // make our 3d mouse event
     var event3d = {
@@ -117,7 +116,7 @@
     // pass through event
     this.notify(target, domEvent.type, event3d);
   
-    if (domEvent.type === "mousedown" && domEvent.button==0) {
+    if (domEvent.type === "mousedown") {
       this.dragging = true;
     }
   

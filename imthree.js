@@ -140,8 +140,6 @@
     
     this.menuDomElem.style.left = event.domEvent.clientX + 'px';
     this.menuDomElem.style.top = event.domEvent.clientY  + 'px';
-    
-    console.log(event.domEvent);
   }
 
   Menu.prototype.hide = function(event) {
