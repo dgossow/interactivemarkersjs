@@ -1,6 +1,6 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['eventemitter2'], factory);
+    define(['three'], factory);
   }
   else {
     root.MarkersThree = factory(root.THREE);

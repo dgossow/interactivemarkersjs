@@ -7,6 +7,14 @@
 
 // behaves like THREE.OrbitControls, but uses
 // right-handed coords and z as up vector
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(['three'], factory);
+  }
+  else {
+    factory(root.THREE);
+  }
+}(this, function (THREE) {
 
   THREE.RosOrbitControls = function(object, domElement) {
   
@@ -342,3 +350,5 @@
     //this.onmousemove = function(event){ onMouseMove(event); }
     //this.onmousewheel = function(event){ onMouseWheel(event); }
   };
+  
+}));
