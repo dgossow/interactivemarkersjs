@@ -55,7 +55,7 @@
     var vector = new THREE.Vector3(deviceX, deviceY, 0.5);
     this.projector.unprojectVector(vector, this.camera);
   
-    var mouseRay = new THREE.Ray(this.camera.position.clone(), vector.subSelf(this.camera.position).normalize());
+    var mouseRay = new THREE.Raycaster(this.camera.position.clone(), vector.subSelf(this.camera.position).normalize());
   
     // make our 3d mouse event
     var event3d = {
