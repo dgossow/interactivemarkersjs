@@ -1,11 +1,11 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['three'], factory);
+    define(['three', './markersthree'], factory);
   }
   else {
-    root.ImThree = factory(root.THREE);
+    root.ImThree = factory(root.THREE, root.MarkersThree);
   }
-}(this, function (THREE) {
+}(this, function (THREE, MarkersThree) {
 
   var ImThree = {};
   
