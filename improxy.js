@@ -38,15 +38,18 @@
     this.initService.callService(request, this.markerInit.bind(this));
   };
   
+  Client.prototype.deleteMarker = function(markerName) {
+    this.emit('deleted_marker', markerName);
+    delete this.interactiveMarkers[markerName];
+  }
+  
   Client.prototype.unsubscribe = function() {
     if ( this.markerUpdateTopic ) {
       this.markerUpdateTopic.unsubscribe();
       this.feedbackTopic.unadvertise();
     }
-    for( im in this.interactiveMarkers ) {
-      console.log(im);
-      this.emit('deleted_marker', im);
-      delete this.interactiveMarkers[im];
+    for( markerName in this.interactiveMarkers ) {
+      this.deleteMarker(markerName);
     }
     this.interactiveMarkers = {};
   }
@@ -64,8 +67,7 @@
     // Deletes markers
     message.erases.forEach(function(name) {
       var marker = that.interactiveMarkers[name];
-      delete that.interactiveMarkers[name];
-      that.emit('deleted_marker', marker);
+      that.deleteMarker(name);
     });
 
     // Updates marker poses
@@ -80,8 +82,7 @@
     message.markers.forEach(function(imMsg) {
       var oldMarker = that.interactiveMarkers[imMsg.name];
       if (oldMarker) {
-        that.emit('deleted_marker', oldMarker);
-        delete that.interactiveMarkers[imMsg.name];
+        that.deleteMarker(oldMarker.name);
       }
 
       var marker = new ImProxy.IntMarkerHandle(imMsg, that.feedbackTopic);

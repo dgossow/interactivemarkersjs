@@ -605,7 +605,11 @@
   };
 
   Viewer.prototype.eraseMarker = function(name) {
-    this.root.remove(this.root.getChildByName(name));
+    var marker = this.root.getChildByName(name);
+    if ( marker == undefined ) {
+      console.log("internal error: cannot delete " + name + " from scene");
+    }
+    this.root.remove(marker);
   };
   
   return ImThree;
