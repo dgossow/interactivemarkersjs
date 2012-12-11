@@ -138,7 +138,7 @@
   
   InteractiveMarker.prototype.moveAxis = function(currentControlOri, origAxis, event3d) {
     if (this.dragging) {
-      console.log(currentControlOri);
+      //console.log(currentControlOri);
       var axis = currentControlOri.multiplyVector3(origAxis.clone());
       // get move axis in world coords
       var originWorld = this.dragStart.event3d.intersection.point;
