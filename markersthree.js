@@ -140,15 +140,32 @@
         break;
   
       case CUBE_LIST:
-        addMesh(new THREE.CubeGeometry(0.1, 0.1, 0.1), colorMaterial);
-        break;
-  
       case SPHERE_LIST:
-        addMesh(new THREE.CubeGeometry(0.1, 0.1, 0.1), colorMaterial);
-        break;
-  
       case POINTS:
-        addMesh(new THREE.CubeGeometry(0.1, 0.1, 0.1), colorMaterial);
+        var geometry = new THREE.Geometry();
+        var material = new THREE.ParticleBasicMaterial( { size: markerMsg.scale.x } );
+
+        for ( var i=0; i<markerMsg.points.length; i++ ) {
+          var vertex = new THREE.Vector3();
+          vertex.x = markerMsg.points[i].x;
+          vertex.y = markerMsg.points[i].y;
+          vertex.z = markerMsg.points[i].z;
+          geometry.vertices.push( vertex );
+        }
+        
+        if ( markerMsg.colors.length == markerMsg.points.length ) {
+          material.vertexColors = true;
+          for ( var i=0; i<markerMsg.points.length; i++ ) {
+            var color = new THREE.Color();
+            color.setRGB( markerMsg.colors[i].r, markerMsg.colors[i].g, markerMsg.colors[i].b );
+            geometry.colors.push( color );
+          }
+        } else {
+          material.color.setRGB( markerMsg.color.r, markerMsg.color.g, markerMsg.color.b );
+        }
+
+        var particles = new THREE.ParticleSystem( geometry, material );
+        this.add( particles );
         break;
   
       case TEXT_VIEW_FACING:

@@ -7,4 +7,9 @@
     <remap from="topic_ns" to="/pr2_marker_control"/>
   </node>
   
+  <node output="screen" name="interactive_point_cloud_proxy" pkg="interactive_marker_proxy" type="proxy">
+    <remap from="target_frame" to="/base_link"/>
+    <remap from="topic_ns" to="/interactive_point_cloud"/>
+  </node>
+  
 </launch>
