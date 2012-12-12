@@ -49,8 +49,13 @@
   
     // compute normalized device coords and 3d mouse ray
     var target = domEvent.target;
-    var deviceX = (domEvent.clientX - target.offsetLeft) / target.clientWidth * 2 - 1;
-    var deviceY = -(domEvent.clientY - target.offsetTop) / target.clientHeight * 2 + 1;
+    var rect = target.getBoundingClientRect();
+    var left = domEvent.clientX - rect.left - target.clientLeft + target.scrollLeft;
+    var top = domEvent.clientY - rect.top - target.clientTop + target.scrollTop;
+    // var deviceX = (domEvent.clientX - target.offset().left) / target.clientWidth * 2 - 1;
+    var deviceX = left / target.clientWidth * 2 - 1;
+    // var deviceY = -(domEvent.clientY - target.offset().top) / target.clientHeight * 2 + 1;
+    var deviceY = -top / target.clientHeight * 2 + 1;
     
     var vector = new THREE.Vector3(deviceX, deviceY, 0.5);
     this.projector.unprojectVector(vector, this.camera);
