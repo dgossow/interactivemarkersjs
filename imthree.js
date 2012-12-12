@@ -482,6 +482,7 @@
     
     this.menuDomElem = document.createElement("div");
     this.menuDomElem.style.position = "absolute";
+    this.menuDomElem.style.visibility = "hidden";
     this.menuDomElem.className = "interactive_marker_menu";
     this.menuDomElem.addEventListener( "contextmenu", function(event) {
       event.preventDefault();
@@ -495,9 +496,7 @@
     this.overlayDomElem.addEventListener("contextmenu", this.hideListener);
     this.overlayDomElem.addEventListener("click", this.hideListener);
 
-    document.body.appendChild(this.overlayDomElem);
-    document.body.appendChild(this.menuDomElem);
-    
+
     // parse all entries
     for (var i=0; i<menuEntries.length; i++) {
       var entry = menuEntries[i];
@@ -508,7 +507,7 @@
         children: []
       };
     }
-    
+
     // link children to parents
     for (var i=0; i<menuEntries.length; i++) {
       var entry = menuEntries[i];
@@ -517,7 +516,7 @@
       var parent = allMenus[ entry.parent_id ];
       parent.children.push( menu );
     }
-    
+
     function emitMenuSelect( menuEntry, domEvent )
     {
       this.dispatchEvent({
@@ -559,17 +558,27 @@
   }
   
   Menu.prototype.show = function(event) {
+    if (event && event.preventDefault) {
+      event.preventDefault();
+    }
+
     this.overlayDomElem.style.visibility = "visible";
     this.menuDomElem.style.visibility = "visible";
-    
     this.menuDomElem.style.left = event.domEvent.clientX + 'px';
     this.menuDomElem.style.top = event.domEvent.clientY  + 'px';
+    document.body.appendChild(this.overlayDomElem);
+    document.body.appendChild(this.menuDomElem);
   }
 
   Menu.prototype.hide = function(event) {
-    event.preventDefault();
+    if (event && event.preventDefault) {
+      event.preventDefault();
+    }
+
     this.overlayDomElem.style.visibility = "hidden";
     this.menuDomElem.style.visibility = "hidden";
+    document.body.removeChild(this.overlayDomElem);
+    document.body.removeChild(this.menuDomElem);
   }
 
   // --------------------------------------------------------
