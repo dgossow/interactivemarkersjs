@@ -189,9 +189,6 @@
       mouse_point_valid: mouse_point_valid,
       menu_entry_id: menu_entry_id
     }
-    
-    console.log(feedback);
-
     this.feedbackTopic.publish(feedback);
   };
 
