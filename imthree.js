@@ -413,7 +413,7 @@
           that.updateMatrix();
           that.matrixWorldNeedsUpdate = true;
           ImThree.InteractiveMarkerControl.prototype.updateMatrixWorld.call(that, force);
-          //that.currentControlOri.copy(that.quaternion);
+          that.currentControlOri.copy(that.quaternion);
         }
         break;
       case VIEW_FACING:
