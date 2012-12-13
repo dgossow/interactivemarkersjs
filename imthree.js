@@ -134,7 +134,7 @@
     if ( this.menu ) {
       this.menu.show(event);
     }
-  }
+  };
   
   InteractiveMarker.prototype.moveAxis = function(currentControlOri, origAxis, event3d) {
     if (this.dragging) {
@@ -482,14 +482,12 @@
     
     this.menuDomElem = document.createElement("div");
     this.menuDomElem.style.position = "absolute";
-    this.menuDomElem.style.visibility = "hidden";
     this.menuDomElem.className = "interactive_marker_menu";
     this.menuDomElem.addEventListener( "contextmenu", function(event) {
       event.preventDefault();
     });
 
     this.overlayDomElem = document.createElement("div");
-    this.overlayDomElem.style.visibility = "hidden";
     this.overlayDomElem.className = "interactive_marker_overlay";
 
     this.hideListener = this.hide.bind(this);
@@ -562,8 +560,7 @@
       event.preventDefault();
     }
 
-    this.overlayDomElem.style.visibility = "visible";
-    this.menuDomElem.style.visibility = "visible";
+    //this.overlayDomElem.style.visibility = "visible";
     this.menuDomElem.style.left = event.domEvent.clientX + 'px';
     this.menuDomElem.style.top = event.domEvent.clientY  + 'px';
     document.body.appendChild(this.overlayDomElem);
@@ -575,8 +572,6 @@
       event.preventDefault();
     }
 
-    this.overlayDomElem.style.visibility = "hidden";
-    this.menuDomElem.style.visibility = "hidden";
     document.body.removeChild(this.overlayDomElem);
     document.body.removeChild(this.menuDomElem);
   }

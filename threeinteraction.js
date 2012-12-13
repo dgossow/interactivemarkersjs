@@ -52,9 +52,7 @@
     var rect = target.getBoundingClientRect();
     var left = domEvent.clientX - rect.left - target.clientLeft + target.scrollLeft;
     var top = domEvent.clientY - rect.top - target.clientTop + target.scrollTop;
-    // var deviceX = (domEvent.clientX - target.offset().left) / target.clientWidth * 2 - 1;
     var deviceX = left / target.clientWidth * 2 - 1;
-    // var deviceY = -(domEvent.clientY - target.offset().top) / target.clientHeight * 2 + 1;
     var deviceY = -top / target.clientHeight * 2 + 1;
     
     var vector = new THREE.Vector3(deviceX, deviceY, 0.5);
@@ -72,6 +70,17 @@
       intersection : this.lastIntersection
     };
   
+    // if the mouse leaves the dom element, stop everything
+    if (domEvent.type == "mouseout") {
+      if ( this.dragging ) {      
+        this.notify(this.lastTarget, "mouseup", event3d);
+        this.dragging = false;
+      }
+      this.notify(this.lastTarget, "mouseout", event3d);
+      this.lastTarget=null;
+      return;
+    }
+  
     // While the user is holding the mouse down,
     // stay on the same target
     if (this.dragging) {
@@ -79,14 +88,6 @@
       if (domEvent.type === "mouseup") {
         this.dragging = false;
       }
-      return;
-    }
-  
-    // if the mouse leaves the dom element, stop everything
-    if (domEvent.type == "mouseout") {
-      this.dragging = false;
-      this.notify(this.lastTarget, "mouseout", event3d);
-      this.lastTarget=null;
       return;
     }
   
