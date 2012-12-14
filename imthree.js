@@ -129,10 +129,10 @@
     return intersectPoint;
   };
   
-  InteractiveMarker.prototype.showMenu=function(event)
+  InteractiveMarker.prototype.showMenu=function(control,event)
   {
     if ( this.menu ) {
-      this.menu.show(event);
+      this.menu.show(control,event);
     }
   };
   
@@ -511,7 +511,8 @@
       this.dispatchEvent({
         type: "menu_select",
         domEvent: domEvent,
-        id: menuEntry.id
+        id: menuEntry.id,
+        controlName: this.controlName
         });
       this.hide( domEvent );        
     }
@@ -546,10 +547,12 @@
     makeUl( this.menuDomElem, allMenus[0] );
   }
   
-  Menu.prototype.show = function(event) {
+  Menu.prototype.show = function(control, event) {
     if (event && event.preventDefault) {
       event.preventDefault();
     }
+    
+    this.controlName = control.name;
 
     //this.overlayDomElem.style.visibility = "visible";
     this.menuDomElem.style.left = event.domEvent.clientX + 'px';
