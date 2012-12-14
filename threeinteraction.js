@@ -22,7 +22,7 @@
     this.renderer = renderer;
     this.projector = new THREE.Projector();
     this.lastTarget = fallbackTarget;
-    this.dragging = null;
+    this.dragging = false;
     this.fallbackTarget = fallbackTarget;
   
     // listen to DOM events
@@ -42,7 +42,7 @@
   }
   
   MouseHandler.prototype.processDomEvent = function(domEvent) {
-  
+
     domEvent.preventDefault();
   
     var intersections = [];
@@ -85,7 +85,10 @@
     // stay on the same target
     if (this.dragging) {
       this.notify(this.lastTarget, domEvent.type, event3d);
-      if (domEvent.type === "mouseup") {
+      // for the right button, the order of events is mousedown-contextmenu-mouseup
+      // otherwise, it is mousedown-mouseup-click
+      if ((domEvent.type === "mouseup" && domEvent.button === 2) ||
+           domEvent.type == "click" ) {
         this.dragging = false;
       }
       return;
