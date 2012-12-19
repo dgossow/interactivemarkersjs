@@ -245,7 +245,7 @@
           state = STATE.ROTATE;
           rotateStart.set(event.clientX, event.clientY);
           break;
-        case 2:
+        case 1:
           state = STATE.MOVE;
           
           moveStartNormal = new THREE.Vector3(0,0,1);
@@ -256,7 +256,7 @@
           moveStartPosition=scope.object.position.clone();
           moveStartIntersection=intersectViewPlane(event3d.mouseRay, moveStartCenter, moveStartNormal);
           break;
-        case 1:
+        case 2:
           state = STATE.ZOOM;
           zoomStart.set(event.clientX, event.clientY);
           break;
@@ -345,10 +345,8 @@
     this.addEventListener('mouseup', onMouseUp);
     this.addEventListener('mousemove', onMouseMove);
     this.addEventListener('mousewheel', onMouseWheel);
-    //this.onmousedown = function(event){ onMouseDown(event); }
-    //this.onmouseup = function(event){ onMouseUp(event); }
-    //this.onmousemove = function(event){ onMouseMove(event); }
-    //this.onmousewheel = function(event){ onMouseWheel(event); }
+    
+    //this.addEventListener('touchMove', onMouseMove);
   };
   
 }));
