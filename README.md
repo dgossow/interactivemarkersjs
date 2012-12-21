@@ -1,5 +1,6 @@
 InteractiveMarkers.js provides an implementation of [Interactive Markers](http://www.ros.org/wiki/interactive_markers) 
-for the web based on [ros.js](https://github.com/RobotWebTools/rosjs) and 
+for the web based on [ros.js](https://github.com/RobotWebTools/rosjs), 
+[actionlib.js](https://github.com/RobotWebTools/actionlibjs) and 
 [three.js](https://github.com/mrdoob/three.js/).
 
 In order to reduce data traffic, it requires you to run a 
@@ -18,6 +19,7 @@ Modules
  * threeinteraction.js: Mouse Interaction library for three.js
  * improxy.js: Client to an Interactive Marker proxy server via ros.js
  * imthree.js: View Interactive Markers using the above libraries
+ * tfclient.js: tf implementation via actionlib.js
 
 Usage
 =====
