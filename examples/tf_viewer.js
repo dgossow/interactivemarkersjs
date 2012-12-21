@@ -49,8 +49,10 @@ InteractiveMarkerDisplay=new (function(THREE) {
     scene.add(gridObj);
 
     // add coordinate frame visualization
-    axes = new THREE.Axes();
-    scene.add(axes);
+    axes1 = new THREE.Axes();
+    axes2 = new THREE.Axes();
+    scene.add(axes1);
+    scene.add(axes2);
 
     renderer = new THREE.WebGLRenderer({
       antialias : true
@@ -78,21 +80,23 @@ InteractiveMarkerDisplay=new (function(THREE) {
     var tfClient = new TfClient( {
       ros: ros,
       fixedFrame: 'base_link',
-      angularThres: 2.0,
+      angularThres: 0.02,
       transThres: 0.01
     } );
     
-    tfClient.subscribe('moving_frame',function(transform){
-      console.log(transform);
-      axes.position.x = transform.translation.x;
-      axes.position.y = transform.translation.y;
-      axes.position.z = transform.translation.z;
-      axes.useQuaternion = true;
-      axes.quaternion.x = transform.rotation.x;
-      axes.quaternion.y = transform.rotation.y;
-      axes.quaternion.z = transform.rotation.z;
-      axes.quaternion.w = transform.rotation.w;
-    });
+    function setPose( obj, transform ) {
+      obj.position.x = transform.translation.x;
+      obj.position.y = transform.translation.y;
+      obj.position.z = transform.translation.z;
+      obj.useQuaternion = true;
+      obj.quaternion.x = transform.rotation.x;
+      obj.quaternion.y = transform.rotation.y;
+      obj.quaternion.z = transform.rotation.z;
+      obj.quaternion.w = transform.rotation.w;
+    }
+    
+    tfClient.subscribe('moving_frame',setPose.bind(this,axes1));
+    tfClient.subscribe('rotating_frame',setPose.bind(this,axes2));
   }
   
   this.subscribe = function( topic ) {

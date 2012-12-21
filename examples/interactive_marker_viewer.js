@@ -72,11 +72,18 @@ InteractiveMarkerDisplay=new (function(THREE) {
 
     // connect to rosbridge
     var ros = new ROS('ws://localhost:9090');
-    
-    var meshBaseUrl = 'http://localhost:8000/resources/';
 
+    // subscribe to tf updates    
+    var tfClient = new TfClient( {
+      ros: ros,
+      fixedFrame: 'base_link',
+      angularThres: 0.02,
+      transThres: 0.01
+    } );
+    
     // show interactive markers
-    imClient = new ImProxy.Client(ros);
+    imClient = new ImProxy.Client(ros,tfClient);
+    var meshBaseUrl = 'http://localhost:8000/resources/';
     imViewer = new ImThree.Viewer(selectableObjs, camera, imClient, meshBaseUrl);
   }
   
