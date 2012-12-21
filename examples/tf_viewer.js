@@ -77,12 +77,12 @@ InteractiveMarkerDisplay=new (function(THREE) {
 
     var tfClient = new TfClient( {
       ros: ros,
-      fixedFrame: '/base_link',
+      fixedFrame: 'base_link',
       angularThres: 2.0,
       transThres: 0.01
     } );
     
-    tfClient.subscribe('/moving_frame',function(transform){
+    tfClient.subscribe('moving_frame',function(transform){
       console.log(transform);
       axes.position.x = transform.translation.x;
       axes.position.y = transform.translation.y;

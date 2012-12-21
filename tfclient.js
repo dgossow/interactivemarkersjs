@@ -9,14 +9,14 @@
 
   var TfClient = function(options) {
     this.ros = options.ros;
-    this.fixedFrame = options.fixedFrame || '/base_link';
+    this.fixedFrame = options.fixedFrame || 'base_link';
     this.angularThres = options.angularThres || 2.0;
     this.transThres = options.transThres || 0.01;
         
     var options = {
       ros: this.ros,
-      serverName: options.serverName || "tf2_web_republisher",
-      actionName: "tf2Subscription"
+      serverName: options.serverName || "/tf2_web_republisher",
+      actionName: "tf2_web_republisher/TFSubscriptionAction"
     };
     
     this.actionClient = new ActionClient( options );
@@ -32,7 +32,6 @@
   TfClient.prototype.tfUpdate = function(tfMsg) {
     var that = this;
     tfMsg.transforms.forEach( function(transform) {
-      console.log(transform);
       var frameId = transform.child_frame_id;
       var cbs = that.frame_cbs[frameId];
       if ( cbs != undefined ) {

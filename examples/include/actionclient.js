@@ -41,7 +41,6 @@ var ActionClient = function(options) {
       if (goal) {
         goal.emit('status', status);
       }
-      console.log('actionClient.goals.length = ', actionClient.goals.length);
     });
   });
 
