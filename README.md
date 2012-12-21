@@ -3,8 +3,11 @@ for the web based on [ros.js](https://github.com/RobotWebTools/rosjs) and
 [three.js](https://github.com/mrdoob/three.js/).
 
 In order to reduce data traffic, it requires you to run a 
-[proxy node](https://github.com/dgossow/interactive_marker_proxy) on the topic that you are subscribing to.
-Please also use the most recent source version of interative_markers, as some changes are not released yet 
+[proxy node](https://github.com/dgossow/interactive_marker_proxy) on the topic that you are subscribing to
+and a [tf republisher](https://github.com/RobotWebTools/tf2_web_republisher).
+
+Please also use the most recent source version of interative_markers and 
+[visualization_tutorials](https://github.com/ros-visualization/visualization_tutorials), as some changes are not released yet 
 (on ROS Fuerte, use [this branch](https://github.com/ros-interactive-manipulation/interactive_markers/tree/fuerte-devel)).
 
 The library is designed to be modular, lightweight and to follow the UMD convention. 
