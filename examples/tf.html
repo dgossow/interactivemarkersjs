@@ -11,23 +11,8 @@
     </style>
     <link rel="stylesheet" type="text/css" href="interactive_markers.css" />
   </head>
-  <body onload="subscribe();">
+  <body>
     
-    <script>
-      function subscribe() {
-        InteractiveMarkerDisplay.subscribe(document.getElementById('topic').value);
-      }
-      function unsubscribe() {
-        InteractiveMarkerDisplay.unsubscribe();
-      }
-    </script>
-
-    Topic: 
-    <input value="/basic_controls" id="topic"/>
-    <input type="button" value="Subscribe" onclick="subscribe();"></button>
-    <input type="button" value="Unsubscribe" onclick="unsubscribe();"></button>
-    <br>
-
     <div id="container"></div>
 
     <script src="include/ros_bundle.js"></script>
@@ -44,7 +29,7 @@
     <script src="include/helpers/RosAxisHelper.js"></script>
     <script src="include/helpers/RosOrbitControls.js"></script>
     
-    <script src="interactive_marker_viewer.js"></script>
+    <script src="tf_viewer.js"></script>
 
   </body>
 </html>

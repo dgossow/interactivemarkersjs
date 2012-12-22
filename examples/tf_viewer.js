@@ -48,6 +48,12 @@ InteractiveMarkerDisplay=new (function(THREE) {
     var gridObj = new THREE.Mesh(gridGeom, gridMaterial);
     scene.add(gridObj);
 
+    // add coordinate frame visualization
+    axes1 = new THREE.Axes();
+    axes2 = new THREE.Axes();
+    scene.add(axes1);
+    scene.add(axes2);
+
     renderer = new THREE.WebGLRenderer({
       antialias : true
     });
@@ -68,8 +74,9 @@ InteractiveMarkerDisplay=new (function(THREE) {
 
     // connect to rosbridge
     var ros = new ROS('ws://localhost:9090');
+    
+    var meshBaseUrl = 'http://localhost:8000/resources/';
 
-    // subscribe to tf updates    
     var tfClient = new TfClient( {
       ros: ros,
       fixedFrame: 'base_link',
@@ -77,10 +84,19 @@ InteractiveMarkerDisplay=new (function(THREE) {
       transThres: 0.01
     } );
     
-    // show interactive markers
-    imClient = new ImProxy.Client(ros,tfClient);
-    var meshBaseUrl = 'http://localhost:8000/resources/';
-    imViewer = new ImThree.Viewer(selectableObjs, camera, imClient, meshBaseUrl);
+    function setPose( obj, transform ) {
+      obj.position.x = transform.translation.x;
+      obj.position.y = transform.translation.y;
+      obj.position.z = transform.translation.z;
+      obj.useQuaternion = true;
+      obj.quaternion.x = transform.rotation.x;
+      obj.quaternion.y = transform.rotation.y;
+      obj.quaternion.z = transform.rotation.z;
+      obj.quaternion.w = transform.rotation.w;
+    }
+    
+    tfClient.subscribe('moving_frame',setPose.bind(this,axes1));
+    tfClient.subscribe('rotating_frame',setPose.bind(this,axes2));
   }
   
   this.subscribe = function( topic ) {
