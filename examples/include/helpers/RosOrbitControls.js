@@ -16,16 +16,14 @@
   }
 }(this, function (THREE) {
 
-  THREE.RosOrbitControls = function(object, domElement) {
+  THREE.RosOrbitControls = function(scene, object) {
   
     THREE.EventTarget.call(this);
   
     this.object = object;
-  
+    
     // In ROS, z is pointing upwards
     this.object.up = new THREE.Vector3(0, 0, 1);
-  
-    this.domElement = (domElement !== undefined ) ? domElement : document;
   
     // API
   
@@ -40,6 +38,14 @@
     this.autoRotate = false;
     this.autoRotateSpeed = 2.0;
     // 30 seconds per round when fps is 60
+
+    this.axes = new THREE.Axes( {
+      shaftRadius: 0.025,
+      headRadius: 0.07,
+      headLength: 0.2
+      });
+    scene.add(this.axes);
+    this.axes.traverse( function(obj){obj.visible = false;});
   
     // internals
   
@@ -75,8 +81,19 @@
     };
     var state = STATE.NONE;
   
-    // events
+    this.showAxes = function() {
+      scope.axes.traverse( function(obj){obj.visible = true;});
+      if ( this.hideTimeout ) {
+        clearTimeout( this.hideTimeout );
+      }
+      scope.hideTimeout = setTimeout( function(){
+        scope.axes.traverse( function(obj){obj.visible = false;});
+        scope.hideTimeout = false;
+      }, 1000);
+    }
   
+    // events
+    
     var changeEvent = {
       type : 'change'
     };
@@ -188,6 +205,11 @@
       position.copy(this.center).addSelf(offset);
   
       this.object.lookAt(this.center);
+      
+      radius = offset.length();
+      this.axes.position = this.center.clone();
+      this.axes.scale.x = this.axes.scale.y = this.axes.scale.z = radius * 0.05;
+      this.axes.updateMatrixWorld(true);
   
       thetaDelta = 0;
       phiDelta = 0;
@@ -261,7 +283,8 @@
           zoomStart.set(event.clientX, event.clientY);
           break;
       }
-  
+      
+      this.showAxes();  
     }
     
     function onMouseMove(event3d) {
@@ -277,6 +300,7 @@
         scope.rotateUp(2 * Math.PI * rotateDelta.y / PIXELS_PER_ROUND * scope.userRotateSpeed);
   
         rotateStart.copy(rotateEnd);
+        this.showAxes();  
   
       } else if (state === STATE.ZOOM) {
   
@@ -294,6 +318,7 @@
         }
   
         zoomStart.copy(zoomEnd);
+        this.showAxes();  
   
       } else if (state === STATE.MOVE) {
   
@@ -307,6 +332,7 @@
         scope.object.position.add( moveStartPosition.clone(), delta.clone() );
         scope.update();
         scope.object.updateMatrixWorld();
+        this.showAxes();  
       }
   
     }
@@ -336,7 +362,8 @@
         scope.zoomIn();
   
       }
-  
+      
+      this.showAxes();  
     }
   
   

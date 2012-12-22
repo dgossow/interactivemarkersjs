@@ -25,7 +25,7 @@ InteractiveMarkerDisplay=new (function(THREE) {
     scene = new THREE.Scene();
 
     // setup camera mouse control
-    cameraControls = new THREE.RosOrbitControls(camera);
+    cameraControls = new THREE.RosOrbitControls(scene,camera);
 
     // add node to host selectable objects
     selectableObjs = new THREE.Object3D;
@@ -47,10 +47,6 @@ InteractiveMarkerDisplay=new (function(THREE) {
     });
     var gridObj = new THREE.Mesh(gridGeom, gridMaterial);
     scene.add(gridObj);
-
-    // add coordinate frame visualization
-    axes = new THREE.Axes();
-    scene.add(axes);
 
     renderer = new THREE.WebGLRenderer({
       antialias : true

@@ -25,7 +25,7 @@ InteractiveMarkerDisplay=new (function(THREE) {
     scene = new THREE.Scene();
 
     // setup camera mouse control
-    cameraControls = new THREE.RosOrbitControls(camera);
+    cameraControls = new THREE.RosOrbitControls(scene,camera);
 
     // add node to host selectable objects
     selectableObjs = new THREE.Object3D;
