@@ -26,7 +26,20 @@
     this.fallbackTarget = fallbackTarget;
   
     // listen to DOM events
-    var eventNames = ["contextmenu", "click", "dblclick", "mouseout", "mousedown", "mouseup", "mousemove", "mousewheel"];
+    var eventNames = [
+    "contextmenu", 
+    "click", 
+    "dblclick", 
+    "mouseout", 
+    "mousedown", 
+    "mouseup", 
+    "mousemove", 
+    "mousewheel",
+    "touchstart",
+    "touchend",
+    "touchcancel",
+    "touchleave",
+    "touchmove"];
     this.listeners = {};
   
     eventNames.forEach(function(eventName) {
@@ -88,7 +101,7 @@
       // for the right button, the order of events is mousedown-contextmenu-mouseup
       // otherwise, it is mousedown-mouseup-click
       if ((domEvent.type === "mouseup" && domEvent.button === 2) ||
-           domEvent.type == "click" ) {
+           domEvent.type === "click" ) {
         this.dragging = false;
       }
       return;
