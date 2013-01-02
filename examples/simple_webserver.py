@@ -20,7 +20,7 @@ class MyHandler(BaseHTTPRequestHandler):
                     try:
                         pkg_path = rp.get_path(splitPath[1])
                     except rospkg.ResourceNotFound:
-                        self.send_error(404, "Resource not found: %s" % splitPath[1])
+                        self.send_error(404, "ROS Package not found: %s" % splitPath[1])
                         return
 
                     subdir = self.path.replace('/resources/' + splitPath[1], '')
