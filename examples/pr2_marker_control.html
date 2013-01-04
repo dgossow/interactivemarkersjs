@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="interactive_markers.css" />
   </head>
   <body onload="subscribe();">
-    
+
     <script>
       function subscribe() {
         InteractiveMarkerDisplay.subscribe(document.getElementById('topic').value);
@@ -22,7 +22,7 @@
       }
     </script>
 
-    Topic: 
+    Topic:
     <input value="/pr2_marker_control" id="topic"/>
     <input type="button" value="Subscribe" onclick="subscribe();"></button>
     <input type="button" value="Unsubscribe" onclick="unsubscribe();"></button>
@@ -34,6 +34,7 @@
     <script src="include/three.js"></script>
     <script src="include/ColladaLoader.js"></script>
 
+    <script src="../tfclient.js"></script>
     <script src="../markersthree.js"></script>
     <script src="../imthree.js"></script>
     <script src="../improxy.js"></script>
@@ -41,7 +42,7 @@
 
     <script src="include/helpers/RosAxisHelper.js"></script>
     <script src="include/helpers/RosOrbitControls.js"></script>
-    
+
     <script src="interactive_marker_viewer.js"></script>
 
   </body>
