@@ -1,11 +1,11 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['eventemitter2'], factory);
+    define(['eventemitter2','./tfclient'], factory);
   }
   else {
-    root.ImProxy = factory(root.EventEmitter2);
+    root.ImProxy = factory(root.EventEmitter2,root.TfClient);
   }
-}(this, function (EventEmitter2) {
+}(this, function (EventEmitter2, TfClient) {
 
   var ImProxy = {};
 
@@ -15,7 +15,7 @@
     this.intMarkerHandles = {};
     this.clientId = "improxy.js " + Math.round( Math.random() * 1000000 );
   };
-  
+
   Client.prototype.__proto__ = EventEmitter2.prototype;
 
   Client.prototype.subscribe = function(topicName) {
@@ -32,7 +32,7 @@
       messageType : 'visualization_msgs/InteractiveMarkerFeedback'
     });
     this.feedbackTopic.advertise();
-    
+
     this.initService = new this.ros.Service({
         name        : topicName + '/tunneled/get_init'
       , serviceType : 'demo_interactive_markers/GetInit'
@@ -40,7 +40,7 @@
     var request = new this.ros.ServiceRequest({});
     this.initService.callService(request, this.processInit.bind(this));
   };
-  
+
   Client.prototype.unsubscribe = function() {
     if ( this.markerUpdateTopic ) {
       this.markerUpdateTopic.unsubscribe();
@@ -51,14 +51,14 @@
     }
     this.intMarkerHandles = {};
   }
-  
+
   Client.prototype.eraseIntMarker = function(intMarkerName) {
     if ( this.intMarkerHandles[intMarkerName] ) {
       this.emit('deleted_marker', intMarkerName);
       delete this.intMarkerHandles[intMarkerName];
     }
   }
-  
+
   Client.prototype.processInit = function(initMessage) {
     var message = initMessage.msg;
     var client = this;
@@ -99,7 +99,7 @@
       that.emit('created_marker', intMarkerHandle);
     });
   };
-  
+
   /* Handle with signals for a single interactive marker */
 
   var IntMarkerHandle = ImProxy.IntMarkerHandle = function(imMsg, feedbackTopic, tf) {
@@ -114,14 +114,14 @@
     this.tfTransform    = new TfClient.Transform();
     this.pose           = new TfClient.Pose();
     this.setPoseFromServer( imMsg.pose );
-    
+
 
     // subscribe to tf updates if frame-fixed
     if ( imMsg.header.stamp.secs === 0.0 && imMsg.header.stamp.nsecs === 0.0 ) {
       this.tf.subscribe( imMsg.header.frame_id, this.tfUpdate.bind(this) );
     }
   };
-  
+
   IntMarkerHandle.prototype.__proto__ = EventEmitter2.prototype;
 
   var KEEP_ALIVE = 0;
@@ -130,13 +130,13 @@
   var BUTTON_CLICK = 3;
   var MOUSE_DOWN = 4;
   var MOUSE_UP = 5;
-  
+
   IntMarkerHandle.prototype.emitServerPoseUpdate = function() {
     var poseTransformed = new TfClient.Pose( this.pose.position, this.pose.orientation );
     this.tfTransform.apply( poseTransformed );
     this.emit('server_updated_pose', poseTransformed );
   }
-  
+
   IntMarkerHandle.prototype.setPoseFromServer = function(poseMsg) {
     this.pose.copy( poseMsg );
     this.emitServerPoseUpdate();
@@ -159,7 +159,7 @@
         clearTimeout(this.timeoutHandle);
       }
       this.timeoutHandle = setTimeout( this.setPoseFromClient.bind(this,event), 250 );
-    } 
+    }
   };
 
   IntMarkerHandle.prototype.onButtonClick = function(event) {
@@ -184,7 +184,7 @@
   }
 
   IntMarkerHandle.prototype.sendFeedback = function(eventType, clickPosition, menu_entry_id, controlName) {
-    
+
     var mouse_point_valid = clickPosition !== undefined;
     var clickPosition = clickPosition || {
       x : 0,

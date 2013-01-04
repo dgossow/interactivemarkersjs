@@ -1,7 +1,7 @@
 InteractiveMarkerDisplay=new (function(THREE) {
 
   var camera, cameraControls, scene, renderer;
-  
+
   var selectableObjs;
 
   var directionalLight;
@@ -69,20 +69,20 @@ InteractiveMarkerDisplay=new (function(THREE) {
     // connect to rosbridge
     var ros = new ROS('ws://localhost:9090');
 
-    // subscribe to tf updates    
+    // subscribe to tf updates
     var tfClient = new TfClient( {
       ros: ros,
       fixedFrame: 'base_link',
-      angularThres: 0.02,
+      angularThres: 1.5,
       transThres: 0.01
     } );
-    
+
     // show interactive markers
     imClient = new ImProxy.Client(ros,tfClient);
     var meshBaseUrl = 'http://localhost:8000/resources/';
     imViewer = new ImThree.Viewer(selectableObjs, camera, imClient, meshBaseUrl);
   }
-  
+
   this.subscribe = function( topic ) {
     imClient.subscribe(topic);
   }
