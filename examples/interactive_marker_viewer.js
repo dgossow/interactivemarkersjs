@@ -66,8 +66,10 @@ InteractiveMarkerDisplay=new (function(THREE) {
     // highlights the receiver of mouse events
     highlighter = new ThreeInteraction.Highlighter(mouseHandler);
 
+
+
     // connect to rosbridge
-    var ros = new ROS('ws://localhost:9090');
+    var ros = new ROS('ws://'+location.hostname+':9090');
 
     // subscribe to tf updates
     var tfClient = new TfClient( {
@@ -79,7 +81,7 @@ InteractiveMarkerDisplay=new (function(THREE) {
 
     // show interactive markers
     imClient = new ImProxy.Client(ros,tfClient);
-    var meshBaseUrl = 'http://localhost:8000/resources/';
+    var meshBaseUrl = 'http://'+location.hostname+':8000/resources/';
     imViewer = new ImThree.Viewer(selectableObjs, camera, imClient, meshBaseUrl);
   }
 
