@@ -75,7 +75,8 @@ InteractiveMarkerDisplay=new (function(THREE) {
       ros: ros,
       fixedFrame: 'base_link',
       angularThres: 1.5,
-      transThres: 0.01
+      transThres: 0.01,
+      rate: 15.0
     } );
 
     // show interactive markers
