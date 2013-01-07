@@ -31,3 +31,5 @@ To run the basic_controls example, go to the examples directory and run (in two 
 `./simple_webserver.py`
 
 `roslaunch basic_controls.launch`
+
+Then, go to [http://localhost:8000/examples/basic_controls.html](http://localhost:8000/examples/basic_controls.html).
