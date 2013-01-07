@@ -62,11 +62,26 @@
 
     var intersections = [];
 
+    var x,y;
+    if ( domEvent.touches != undefined )
+    {
+      if ( domEvent.touches.length == 1 ) {
+        x = domEvent.touches[0].clientX;
+        y = domEvent.touches[0].clientY;
+      } else if ( domEvent.touches.length == 2 ) {
+        x = (domEvent.touches[0].clientX + domEvent.touches[1].clientX)/2.0;
+        y = (domEvent.touches[0].clientY + domEvent.touches[1].clientY)/2.0;
+      }
+    } else {
+      x = domEvent.clientX;
+      y = domEvent.clientY;
+    }
+
     // compute normalized device coords and 3d mouse ray
     var target = domEvent.target;
     var rect = target.getBoundingClientRect();
-    var left = domEvent.clientX - rect.left - target.clientLeft + target.scrollLeft;
-    var top = domEvent.clientY - rect.top - target.clientTop + target.scrollTop;
+    var left = x - rect.left - target.clientLeft + target.scrollLeft;
+    var top = y - rect.top - target.clientTop + target.scrollTop;
     var deviceX = left / target.clientWidth * 2 - 1;
     var deviceY = -top / target.clientHeight * 2 + 1;
 
@@ -103,6 +118,7 @@
       // for the right button, the order of events is mousedown-contextmenu-mouseup
       // otherwise, it is mousedown-mouseup-click
       if ((domEvent.type === "mouseup" && domEvent.button === 2) ||
+          (domEvent.type === "touchend" && domEvent.touches.length == 0) ||
            domEvent.type === "click" ) {
         this.dragging = false;
       }
@@ -141,7 +157,7 @@
     // pass through event
     this.notify(target, domEvent.type, event3d);
 
-    if (domEvent.type === "mousedown") {
+    if (domEvent.type === "mousedown" || domEvent.type === "touchstart") {
       this.dragging = true;
     }
 

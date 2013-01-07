@@ -67,6 +67,9 @@
     var moveStartPosition = new THREE.Vector3();
     var moveStartIntersection = new THREE.Vector3();
 
+    var touchStartDist = 0;
+    var touchStartScale = 1;
+
     var phiDelta = 0;
     var thetaDelta = 0;
     var scale = 1;
@@ -261,18 +264,44 @@
       rotateStart.set(event.clientX, event.clientY);
     }
 
+    function getTouchDist(event) {
+      if ( event.touches.length < 2 ) return 0;
+      var dx = event.touches[0].clientX - event.touches[1].clientX;
+      var dy = event.touches[0].clientY - event.touches[1].clientY;
+      return Math.sqrt( dx*dx + dy*dy );
+    }
+
+    function getTouchCenter(event) {
+      var x,y;
+      if ( event.touches.length < 2 ) {
+        x = event.touches[0].clientX;
+        y = event.touches[0].clientY;
+      } else {
+        x = (event.touches[0].clientX + event.touches[1].clientX)/2.0;
+        y = (event.touches[0].clientY + event.touches[1].clientY)/2.0;
+      }
+      return { x:x,y:y };
+    }
+
     function onTouchStart(event3d) {
 
       var event = event3d.domEvent;
       event.preventDefault();
 
-      if ( event.touches.length == 1 )
-      {
+      if ( event.touches.length == 1 ) {
         event.clientX = event.touches[0].clientX;
         event.clientY = event.touches[0].clientY;
         event.button = 0;
         startRotate(event);
+      } else if ( event.touches.length == 2 ) {
+        if ( state != STATE.NONE ) {
+          onTouchEnd( event3d );
+        }
+        touchStartDist = getTouchDist(event);
+        touchStartScale = scale;
       }
+
+      scope.showAxes();
     }
 
     function onTouchMove(event3d) {
@@ -285,9 +314,16 @@
         event.clientX = event.touches[0].clientX;
         event.clientY = event.touches[0].clientY;
         event.button = 0;
-        console.log(event.clientX);
         onMouseMove(event3d);
+      } else if ( event.touches.length == 2 )
+      {
+        var touchDist = getTouchDist(event);
+        scale *= touchStartScale * touchStartDist / touchDist;
+        touchStartDist = touchDist;
+        console.log( "touchDist:: ", touchDist );
       }
+
+      scope.showAxes();
     }
 
     function onTouchEnd(event3d) {
@@ -340,7 +376,7 @@
         scope.rotateUp(2 * Math.PI * rotateDelta.y / PIXELS_PER_ROUND * scope.userRotateSpeed);
 
         rotateStart.copy(rotateEnd);
-        this.showAxes();
+        scope.showAxes();
 
       } else if (state === STATE.ZOOM) {
 
@@ -358,7 +394,7 @@
         }
 
         zoomStart.copy(zoomEnd);
-        this.showAxes();
+        scope.showAxes();
 
       } else if (state === STATE.MOVE) {
 
@@ -372,7 +408,7 @@
         scope.object.position.add( moveStartPosition.clone(), delta.clone() );
         scope.update();
         scope.object.updateMatrixWorld();
-        this.showAxes();
+        scope.showAxes();
       }
 
     }

@@ -26,6 +26,7 @@ InteractiveMarkerDisplay=new (function(THREE) {
 
     // setup camera mouse control
     cameraControls = new THREE.RosOrbitControls(scene,camera);
+    cameraControls.userZoomSpeed = 0.5;
 
     // add node to host selectable objects
     selectableObjs = new THREE.Object3D;
@@ -49,7 +50,7 @@ InteractiveMarkerDisplay=new (function(THREE) {
     scene.add(gridObj);
 
     renderer = new THREE.WebGLRenderer({
-      antialias : true
+      antialias : false
     });
     renderer.setClearColorHex(0x333333, 1.0);
     renderer.sortObjects = false;
@@ -65,8 +66,6 @@ InteractiveMarkerDisplay=new (function(THREE) {
 
     // highlights the receiver of mouse events
     highlighter = new ThreeInteraction.Highlighter(mouseHandler);
-
-
 
     // connect to rosbridge
     var ros = new ROS('ws://'+location.hostname+':9090');
