@@ -8,15 +8,15 @@
 }(this, function (THREE) {
 
   var ThreeInteraction = {};
-  
+
   var MouseHandler = ThreeInteraction.MouseHandler = function(renderer, camera, rootObj, fallbackTarget) {
-  
+
     if (!renderer || !renderer.domElement || !camera || !rootObj) {
       return;
     }
-  
+
     THREE.EventTarget.call(this);
-  
+
     this.camera = camera;
     this.rootObj = rootObj;
     this.renderer = renderer;
@@ -24,16 +24,16 @@
     this.lastTarget = fallbackTarget;
     this.dragging = false;
     this.fallbackTarget = fallbackTarget;
-  
+
     // listen to DOM events
     var eventNames = [
-    "contextmenu", 
-    "click", 
-    "dblclick", 
-    "mouseout", 
-    "mousedown", 
-    "mouseup", 
-    "mousemove", 
+    "contextmenu",
+    "click",
+    "dblclick",
+    "mouseout",
+    "mousedown",
+    "mouseup",
+    "mousemove",
     "mousewheel",
     "touchstart",
     "touchend",
@@ -41,25 +41,27 @@
     "touchleave",
     "touchmove"];
     this.listeners = {};
-  
+
     eventNames.forEach(function(eventName) {
       this.listeners[eventName] = this.processDomEvent.bind(this);
       this.renderer.domElement.addEventListener(eventName, this.listeners[eventName], false);
     }, this);
   }
-  
+
   MouseHandler.prototype.destroy = function() {
     this.listeners.forEach(function(listener) {
       this.renderer.domElement.removeEventListener(eventName, listener, false);
     }, this);
   }
-  
+
   MouseHandler.prototype.processDomEvent = function(domEvent) {
 
+    console.log(domEvent.type);
+
     domEvent.preventDefault();
-  
+
     var intersections = [];
-  
+
     // compute normalized device coords and 3d mouse ray
     var target = domEvent.target;
     var rect = target.getBoundingClientRect();
@@ -67,13 +69,13 @@
     var top = domEvent.clientY - rect.top - target.clientTop + target.scrollTop;
     var deviceX = left / target.clientWidth * 2 - 1;
     var deviceY = -top / target.clientHeight * 2 + 1;
-    
+
     var vector = new THREE.Vector3(deviceX, deviceY, 0.5);
     this.projector.unprojectVector(vector, this.camera);
-  
+
     var mouseRaycaster = new THREE.Raycaster(this.camera.position.clone(), vector.subSelf(this.camera.position).normalize());
     var mouseRay = mouseRaycaster.ray;
-  
+
     // make our 3d mouse event
     var event3d = {
       mousePos : new THREE.Vector2(deviceX, deviceY),
@@ -82,10 +84,10 @@
       camera : this.camera,
       intersection : this.lastIntersection
     };
-  
+
     // if the mouse leaves the dom element, stop everything
     if (domEvent.type == "mouseout") {
-      if ( this.dragging ) {      
+      if ( this.dragging ) {
         this.notify(this.lastTarget, "mouseup", event3d);
         this.dragging = false;
       }
@@ -93,7 +95,7 @@
       this.lastTarget=null;
       return;
     }
-  
+
     // While the user is holding the mouse down,
     // stay on the same target
     if (this.dragging) {
@@ -106,9 +108,9 @@
       }
       return;
     }
-  
+
     var target = this.lastTarget;
-  
+
     // In the normal case, we need to check what is under the mouse
     intersections = mouseRaycaster.intersectObject(this.rootObj, true);
     if (intersections.length > 0) {
@@ -117,13 +119,13 @@
     } else {
       target = this.fallbackTarget;
     }
-  
+
     // if the mouse moves from one object to another
     // (or from/to the 'null' object), notify both
     if (target !== this.lastTarget) {
-      
+
       var eventAccepted = this.notify(target, 'mouseover', event3d);
-      
+
       if (eventAccepted) {
         this.notify(this.lastTarget, 'mouseout', event3d);
       } else {
@@ -135,20 +137,20 @@
         }
       }
     }
-  
+
     // pass through event
     this.notify(target, domEvent.type, event3d);
-  
+
     if (domEvent.type === "mousedown") {
       this.dragging = true;
     }
-  
+
     this.lastTarget = target;
   }
-  
+
   MouseHandler.prototype.notify = function(target, type, event3d) {
     event3d.type = type;
-  
+
     // make the event cancelable
     event3d.cancelBubble = false;
     event3d.stopPropagation = function() {
@@ -166,13 +168,13 @@
           return true;
         }
       }
-  
+
       // walk up
       event3d.currentTarget = event3d.currentTarget.parent;
     }
     return false;
   }
-  
+
   var Highlighter = ThreeInteraction.Highlighter = function(mouseHandler) {
     mouseHandler.addEventListener("mouseover", this.onMouseOver.bind(this));
     mouseHandler.addEventListener("mouseout", this.onMouseOut.bind(this));
@@ -186,7 +188,7 @@
   Highlighter.prototype.onMouseOut = function(event) {
     this.hoverObjs.splice(this.hoverObjs.indexOf(event.currentTarget), 1);
   }
-  
+
   Highlighter.prototype.getWebglObjects = function(scene, objects, renderList) {
     var objlist = scene.__webglObjects;
     // get corresponding webgl objects
@@ -232,6 +234,6 @@
     scene.__webglObjects = oldWebglObjects;
     scene.overrideMaterial = null;
   }
-  
+
   return ThreeInteraction;
 }));
