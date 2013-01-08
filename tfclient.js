@@ -80,6 +80,10 @@
   }
 
   TfClient.prototype.subscribe = function(frameId,callback) {
+    // make sure the frame id is relative
+    if ( frameId[0] === "/" ) {
+      frameId = frameId.substring(1);
+    }
     // if there is no callback registered for the given frame,
     // create emtpy callback list
     if ( this.frame_cbs[frameId] == undefined ) {
