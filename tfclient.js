@@ -23,7 +23,7 @@
 
     this.actionClient = new ActionClient( options );
     this.currentGoal = false;
-    this.frame_cbs = {};
+    this.frame_infos = {};
     this.goalUpdateRequested = false;
   };
 
@@ -33,11 +33,11 @@
     var that = this;
     tfMsg.transforms.forEach( function(transform) {
       var frameId = transform.child_frame_id;
-      var cbs = that.frame_cbs[frameId];
-      if ( cbs != undefined ) {
-        cbs.forEach(function(cb) {
-          var t = new Transform(transform.transform.translation,transform.transform.rotation);
-          cb(t);
+      var info = that.frame_infos[frameId];
+      if ( info != undefined ) {
+        info.transform = new Transform(transform.transform.translation,transform.transform.rotation);
+        info.cbs.forEach(function(cb) {
+          cb(info.transform);
         });
       }
     });
@@ -45,12 +45,10 @@
 
   TfClient.prototype.requestGoalUpdate = function() {
     if ( !this.goalUpdateRequested ) {
-      console.log("requesting goal update");
       setTimeout(this.updateGoal.bind(this), this.goalUpdateDelay);
       this.goalUpdateRequested = true;
       return;
     }
-    console.log("goal update already requested.");
   }
 
   TfClient.prototype.updateGoal = function() {
@@ -69,7 +67,7 @@
     };
 
     var source_frames = [];
-    for (frame in this.frame_cbs ) {
+    for (frame in this.frame_infos ) {
       goalMsg.source_frames.push(frame);
     };
 
@@ -86,21 +84,27 @@
     }
     // if there is no callback registered for the given frame,
     // create emtpy callback list
-    if ( this.frame_cbs[frameId] == undefined ) {
-      this.frame_cbs[frameId] = [];
+    if ( this.frame_infos[frameId] == undefined ) {
+      this.frame_infos[frameId] = {
+        cbs: [] };
       this.requestGoalUpdate();
+    } else {
+      // if we already have a transform, call back immediately
+      if ( this.frame_infos[frameId].transform != undefined ) {
+        callback( this.frame_infos[frameId].transform );
+      }
     }
-    this.frame_cbs[frameId].push( callback );
+    this.frame_infos[frameId].cbs.push( callback );
   };
 
   TfClient.prototype.unsubscribe = function(frameId,callback) {
-    var cbs = this.frame_cbs[frameId];
-    if ( cbs != undefined ) {
-      var cbIndex = cbs.indexOf( callback );
+    var info = this.frame_infos[frameId];
+    if ( info != undefined ) {
+      var cbIndex = info.cbs.indexOf( callback );
       if ( cbIndex >= 0 ) {
-        cbs.splice(cbIndex, 1);
-        if ( cbs.length == 0 ) {
-          delete this.frame_cbs[frameId];
+        info.cbs.splice(cbIndex, 1);
+        if ( info.cbs.length == 0 ) {
+          delete this.frame_infos[frameId];
         }
       this.needUpdate = true;
       }
