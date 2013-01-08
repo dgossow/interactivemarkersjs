@@ -45,12 +45,10 @@
 
   TfClient.prototype.requestGoalUpdate = function() {
     if ( !this.goalUpdateRequested ) {
-      console.log("requesting goal update");
       setTimeout(this.updateGoal.bind(this), this.goalUpdateDelay);
       this.goalUpdateRequested = true;
       return;
     }
-    console.log("goal update already requested.");
   }
 
   TfClient.prototype.updateGoal = function() {

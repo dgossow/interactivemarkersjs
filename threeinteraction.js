@@ -56,8 +56,6 @@
 
   MouseHandler.prototype.processDomEvent = function(domEvent) {
 
-    console.log(domEvent.type);
-
     domEvent.preventDefault();
 
     var intersections = [];
