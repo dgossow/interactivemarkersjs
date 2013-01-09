@@ -97,6 +97,9 @@
       var intMarkerHandle = new ImProxy.IntMarkerHandle(imMsg, that.feedbackTopic, that.tf);
       that.intMarkerHandles[imMsg.name] = intMarkerHandle;
       that.emit('created_marker', intMarkerHandle);
+      // this might trigger a transform update event immediately,
+      // so we need to call it after emitting a created_marker event.
+      intMarkerHandle.subscribeTf(imMsg);
     });
   };
 
@@ -114,12 +117,6 @@
     this.tfTransform    = new TfClient.Transform();
     this.pose           = new TfClient.Pose();
     this.setPoseFromServer( imMsg.pose );
-
-
-    // subscribe to tf updates if frame-fixed
-    if ( imMsg.header.stamp.secs === 0.0 && imMsg.header.stamp.nsecs === 0.0 ) {
-      this.tf.subscribe( imMsg.header.frame_id, this.tfUpdate.bind(this) );
-    }
   };
 
   IntMarkerHandle.prototype.__proto__ = EventEmitter2.prototype;
@@ -130,6 +127,13 @@
   var BUTTON_CLICK = 3;
   var MOUSE_DOWN = 4;
   var MOUSE_UP = 5;
+
+  IntMarkerHandle.prototype.subscribeTf = function(imMsg) {
+    // subscribe to tf updates if frame-fixed
+    if ( imMsg.header.stamp.secs === 0.0 && imMsg.header.stamp.nsecs === 0.0 ) {
+      this.tf.subscribe( imMsg.header.frame_id, this.tfUpdate.bind(this) );
+    }
+  }
 
   IntMarkerHandle.prototype.emitServerPoseUpdate = function() {
     var poseTransformed = new TfClient.Pose( this.pose.position, this.pose.orientation );
