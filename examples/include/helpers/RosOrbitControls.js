@@ -16,7 +16,8 @@
   }
 }(this, function (THREE) {
 
-  THREE.RosOrbitControls = function(scene, object) {
+  //THREE.RosOrbitControls = function(scene, object) {
+  var RosOrbitControls = function(scene, object) {
   
     THREE.EventTarget.call(this);
   
@@ -375,5 +376,7 @@
     
     //this.addEventListener('touchMove', onMouseMove);
   };
+
+  return RosOrbitControls;
   
 }));
