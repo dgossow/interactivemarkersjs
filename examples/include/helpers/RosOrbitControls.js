@@ -12,7 +12,7 @@
     define(['three'], factory);
   }
   else {
-    factory(root.THREE);
+    root.RosOrbitControls= factory(root.THREE);
   }
 }(this, function (THREE) {
 
