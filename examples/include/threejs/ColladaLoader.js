@@ -10,9 +10,7 @@
   }
 }(this, function (THREE) {
 
-THREE.ColladaLoader = function ( overrideMaterial_ ) {
-
-  var overrideMaterial = overrideMaterial_;
+THREE.ColladaLoader = function () {
 
 	var COLLADA = null;
 	var scene = null;
@@ -787,7 +785,7 @@ THREE.ColladaLoader = function ( overrideMaterial_ ) {
 				}
 
 				var mesh;
-				var material = overrideMaterial || first_material || new THREE.MeshLambertMaterial( { color: 0xdddddd, shading: THREE.FlatShading, side: geometry.doubleSided ? THREE.DoubleSide : THREE.FrontSide } );
+				var material = first_material || new THREE.MeshLambertMaterial( { color: 0xdddddd, shading: THREE.FlatShading, side: geometry.doubleSided ? THREE.DoubleSide : THREE.FrontSide } );
 				var geom = geometry.mesh.geometry3js;
 
 				if ( num_materials > 1 ) {
@@ -2950,11 +2948,6 @@ THREE.ColladaLoader = function ( overrideMaterial_ ) {
 	};
 
 	ColorOrTexture.prototype.parse = function ( element ) {
-
-	  if ( overrideMaterial )
-	  {
-	    return;
-	  }
 
 		for ( var i = 0; i < element.childNodes.length; i ++ ) {
 

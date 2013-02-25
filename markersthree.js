@@ -199,14 +199,7 @@
         break;
 
       case MESH_RESOURCE:
-        if ( markerMsg.mesh_use_embedded_materials )
-        {
-          var meshMarker = new THREE.MeshMarkerHelper( markerMsg, this.meshBaseUrl, false );
-        }
-        else
-        {
-          var meshMarker = new THREE.MeshMarkerHelper( markerMsg, this.meshBaseUrl, colorMaterial );
-        }
+        var meshMarker = new THREE.MeshMarkerHelper( markerMsg, this.meshBaseUrl );
         this.add(meshMarker);
         break;
 
@@ -298,7 +291,7 @@
 
   /* Mesh Marker */
 
-  THREE.MeshMarkerHelper = function(markerMsg, meshBaseUrl, overrideMaterial) {
+  THREE.MeshMarkerHelper = function(markerMsg, meshBaseUrl) {
 
     if ( meshBaseUrl == undefined )
     {
@@ -307,7 +300,7 @@
       THREE.Mesh.call(this,new THREE.CubeGeometry(0.01, 0.01, 0.01), new THREE.MeshBasicMaterial());
 //      THREE.Object3D.call(this);
 
-      var loader = new THREE.ColladaLoader( overrideMaterial );
+      var loader = new THREE.ColladaLoader();
       var url = meshBaseUrl + markerMsg.mesh_resource.substr(10);
 
       var that = this;
