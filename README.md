@@ -1,3 +1,11 @@
+## Deprecated
+
+The Interactive Marker functionality has moved to
+[ros3djs](https://github.com/robotwebtools/ros3djs). Ros3djs includes
+interactive markers plus scene management, Collada loading, and more.
+
+## Original Description
+
 InteractiveMarkers.js provides an implementation of [Interactive Markers](http://www.ros.org/wiki/interactive_markers) 
 for the web based on [ros.js](https://github.com/RobotWebTools/rosjs), 
 [actionlib.js](https://github.com/RobotWebTools/actionlibjs) and 
