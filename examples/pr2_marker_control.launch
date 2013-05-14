@@ -2,11 +2,19 @@
 
   <param name="/rosbridge/port" value="9090"/>
 
-  <node output="screen" name="rosbridge" pkg="rosbridge_server" type="rosbridge.py" />
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch"/>
   
   <node output="screen" name="interactive_point_cloud_proxy" pkg="interactive_marker_proxy" type="proxy">
     <remap from="target_frame" to="/base_link"/>
     <remap from="topic_ns" to="/interactive_point_cloud"/>
+  </node>
+
+  <node output="screen" name="pr2_marker_control_proxy" pkg="interactive_marker_proxy" type="proxy">
+    <remap from="target_frame" to="/base_link"/>
+    <remap from="topic_ns" to="/pr2_marker_control"/>
+  </node>
+
+  <node pkg="tf2_web_republisher" type="tf2_web_republisher" name="tf2_web_republisher" output="screen">
   </node>
   
 </launch>
