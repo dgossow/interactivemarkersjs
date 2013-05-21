@@ -1,9 +1,7 @@
 <launch>
 
-  <param name="/rosbridge/port" value="9090"/>
-
   <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
-    <arg name="port" value="9191"/>
+    <arg name="port" value="9099"/>
   </include>
 
   <node output="screen" name="interactive_point_cloud_proxy" pkg="interactive_marker_proxy" type="proxy">

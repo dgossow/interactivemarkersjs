@@ -69,7 +69,7 @@ InteractiveMarkerDisplay=new (function(THREE) {
     highlighter = new ThreeInteraction.Highlighter(mouseHandler);
 
     // connect to rosbridge
-    var ros = new ROS('ws://'+location.hostname+':9191');
+    var ros = new ROS('ws://'+location.hostname+':9099');
 
     // subscribe to tf updates
     var tfClient = new TfClient( {
